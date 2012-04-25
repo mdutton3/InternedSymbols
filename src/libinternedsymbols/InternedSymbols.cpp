@@ -2,7 +2,7 @@
 //! @file
 //! @brief Implements methods exported from the Interned Symbols
 
-#include "InternedSymbols_API.h"
+#include "libinternedsymbols/InternedSymbols_API.h"
 
 #include <cstring>
 #include <vector>
@@ -37,7 +37,7 @@ public:
     }
 
     inline InternHandle_t getHandle( wchar_t const * const str,
-                                     unsigned __int32 const len )
+                                     uint32_t const len )
     {
         std::size_t const nameHash = boost::hash_range( str, str + len );
 
@@ -72,7 +72,7 @@ public:
 
 //---------------------------------------------------------------------------------------
 InternHandle_t GetSymbolHandleW( wchar_t const * const str,
-                                 unsigned __int32 const len )
+                                 uint32_t const len )
 {
     return SymbolStore::Instance( ).getHandle( str, len );
 }
@@ -81,13 +81,16 @@ InternHandle_t GetSymbolHandleW( wchar_t const * const str,
 //---------------------------------------------------------------------------------------
 void ResolveSymbolNameW( InternHandle_t const handle,
                          wchar_t * const buf,
-                         unsigned __int32 * len )
+                         uint32_t * len )
 {
+    using namespace std;
     Symbol const * const pSymbol = SymbolStore::Instance().resolveHandle( handle );
     if( pSymbol )
     {
-        wcsncpy_s( buf, *len, pSymbol->m_name.c_str(), _TRUNCATE );
-        *len = pSymbol->m_name.length( );
+        uint32_t const lenOut = pSymbol->m_name.length( );
+        wcsncpy( buf, pSymbol->m_name.c_str(), min(*len,lenOut+1) );
+        buf[*len-1] = 0;
+        *len = lenOut;
     }
 }
 
