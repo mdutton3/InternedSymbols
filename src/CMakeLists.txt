@@ -1,4 +1,4 @@
-SUBDIRS( libinternedsymbols )
+SUBDIRS( internedsymbols )
 include_directories( . )
 
 
