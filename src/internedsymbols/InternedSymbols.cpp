@@ -86,7 +86,7 @@ private:
     typedef std::vector<InternedSymbol const *> SymbolBucket;
     typedef boost::unordered_map< HashVal, SymbolBucket > HashMap;
     
-    typedef boost::unique_lock< boost::mutex > Lock;
+    typedef boost::mutex Lock;
     Lock m_symbolLock;
     HashMap m_hashMap;
 
@@ -95,7 +95,7 @@ private:
 public:
     ~SymbolStore( )
     {
-        boost::lock_guard< Lock > guard( m_symbolLock );
+        Lock::scoped_lock scopedLock( m_symbolLock );
         BOOST_FOREACH( HashMap::value_type const & hash_pair, m_hashMap )
             BOOST_FOREACH( InternedSymbol const * pSymbol, hash_pair.second )
                 delete pSymbol;
@@ -112,7 +112,7 @@ public:
     {
         HashVal const nameHash = InternedSymbol::hash( str, len );
 
-        boost::lock_guard< Lock > guard( m_symbolLock );
+        Lock::scoped_lock scopedLock( m_symbolLock );
 
         SymbolBucket & bucket = m_hashMap[ nameHash ];
 
