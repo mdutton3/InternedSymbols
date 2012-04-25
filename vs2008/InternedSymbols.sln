@@ -3,6 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InternedSymbols", "InternedSymbols.vcproj", "{0113E2B2-9698-4BFC-867B-F91193520515}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "unittest.vcproj", "{5B35D8BC-8DBE-486E-9B20-9B3C95FE1017}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF} = {4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF}
+		{0113E2B2-9698-4BFC-867B-F91193520515} = {0113E2B2-9698-4BFC-867B-F91193520515}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Helper", "unittest_helper.vcproj", "{4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0113E2B2-9698-4BFC-867B-F91193520515} = {0113E2B2-9698-4BFC-867B-F91193520515}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +24,14 @@ Global
 		{0113E2B2-9698-4BFC-867B-F91193520515}.Debug|Win32.Build.0 = Debug|Win32
 		{0113E2B2-9698-4BFC-867B-F91193520515}.Release|Win32.ActiveCfg = Release|Win32
 		{0113E2B2-9698-4BFC-867B-F91193520515}.Release|Win32.Build.0 = Release|Win32
+		{5B35D8BC-8DBE-486E-9B20-9B3C95FE1017}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B35D8BC-8DBE-486E-9B20-9B3C95FE1017}.Debug|Win32.Build.0 = Debug|Win32
+		{5B35D8BC-8DBE-486E-9B20-9B3C95FE1017}.Release|Win32.ActiveCfg = Release|Win32
+		{5B35D8BC-8DBE-486E-9B20-9B3C95FE1017}.Release|Win32.Build.0 = Release|Win32
+		{4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF}.Debug|Win32.Build.0 = Debug|Win32
+		{4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF}.Release|Win32.ActiveCfg = Release|Win32
+		{4EAFE844-5FBF-4B2F-9D78-DE0D6CB33BEF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
