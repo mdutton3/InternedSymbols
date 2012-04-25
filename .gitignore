@@ -21,6 +21,9 @@
 */Debug/
 */Release/
 
+# CMake files
+/build/
+
 # Misc.
 *~
 
