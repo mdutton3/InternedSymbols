@@ -75,14 +75,14 @@ extern "C" {
     //! @param[in] str The ASCII symbol name, case sensitive
     //! @param[in] len The length of the name, in characters
     //! @return A handle to the interned symbol
-    //INTERNEDSYMBOLS_DLLAPI InternHandle_t GetSymbolHandleA( char const * const str,
+    //InternHandle_t INTERNEDSYMBOLS_DLLAPI GetSymbolHandleA( char const * const str,
     //                                                        uint32_t const len );
 
     //! @brief Get a new or existing handle to the given symbol name
     //! @param[in] str The ASCII symbol name, case sensitive
     //! @param[in] len The length of the name, in characters
     //! @return A handle to the interned symbol
-    INTERNEDSYMBOLS_DLLAPI InternHandle_t GetSymbolHandleW( wchar_t const * const str,
+    InternHandle_t INTERNEDSYMBOLS_DLLAPI GetSymbolHandleW( wchar_t const * const str,
                                                             uint32_t const len );
 
 
@@ -92,7 +92,7 @@ extern "C" {
     //! @param[out] buf An output buffer to hold the copied name
     //! @param[in,out] len (in) The maximum buffer length, in characters.
     //! @param[in,out] len (out) The actual length of the name, may be larger than the original buffer length
-    //INTERNEDSYMBOLS_DLLAPI void ResolveSymbolNameA( InternHandle_t const handle,
+    //void INTERNEDSYMBOLS_DLLAPI ResolveSymbolNameA( InternHandle_t const handle,
     //                                                char * const buf,
     //                                                uint32_t * len );
 
@@ -103,7 +103,7 @@ extern "C" {
     //! @param[out] buf An output buffer to hold the copied name
     //! @param[in,out] len (in) The maximum buffer length, in characters.
     //! @param[in,out] len (out) The actual length of the name, may be larger than the original buffer length
-    INTERNEDSYMBOLS_DLLAPI void ResolveSymbolNameW( InternHandle_t const handle,
+    void INTERNEDSYMBOLS_DLLAPI ResolveSymbolNameW( InternHandle_t const handle,
                                                     wchar_t * const buf,
                                                     uint32_t * len );
 
@@ -123,7 +123,7 @@ extern "C" {
     //! @param[in] handle A valid handle to a symbol
     //! @param[in] pCallback The callback to call with the symbol name
     //! @param[in] pUserData Caller-specific data to be passed to pCallback
-    INTERNEDSYMBOLS_DLLAPI void ResolveSymbolNameCallbackW( InternHandle_t const handle,
+    void INTERNEDSYMBOLS_DLLAPI ResolveSymbolNameCallbackW( InternHandle_t const handle,
                                                             InternedSymbol_StrSetterW const pCallback,
                                                             void * const pUserData );
 

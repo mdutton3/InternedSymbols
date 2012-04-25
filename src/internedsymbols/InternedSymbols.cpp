@@ -2,7 +2,10 @@
 //! @file
 //! @brief Implements methods exported from the Interned Symbols
 
-#include "libinternedsymbols/InternedSymbols_API.h"
+// Disable warnings about xxx_s replacements, because we have to compile for gcc also
+#define _CRT_SECURE_NO_WARNINGS
+
+#include "internedsymbols/InternedSymbols_API.h"
 
 #include <cstring>
 #include <vector>
@@ -71,17 +74,17 @@ public:
 
 
 //---------------------------------------------------------------------------------------
-InternHandle_t GetSymbolHandleW( wchar_t const * const str,
-                                 uint32_t const len )
+InternHandle_t INTERNEDSYMBOLS_DLLAPI GetSymbolHandleW( wchar_t const * const str,
+                                                        uint32_t const len )
 {
     return SymbolStore::Instance( ).getHandle( str, len );
 }
 
 
 //---------------------------------------------------------------------------------------
-void ResolveSymbolNameW( InternHandle_t const handle,
-                         wchar_t * const buf,
-                         uint32_t * len )
+void INTERNEDSYMBOLS_DLLAPI ResolveSymbolNameW( InternHandle_t const handle,
+                                                wchar_t * const buf,
+                                                uint32_t * len )
 {
     using namespace std;
     Symbol const * const pSymbol = SymbolStore::Instance().resolveHandle( handle );
@@ -95,9 +98,9 @@ void ResolveSymbolNameW( InternHandle_t const handle,
 }
 
 //---------------------------------------------------------------------------------------
-void ResolveSymbolNameCallbackW( InternHandle_t const handle,
-                                 InternedSymbol_StrSetterW const pCallback,
-                                 void * const pUserData )
+void INTERNEDSYMBOLS_DLLAPI ResolveSymbolNameCallbackW( InternHandle_t const handle,
+                                                        InternedSymbol_StrSetterW const pCallback,
+                                                        void * const pUserData )
 {
     Symbol const * const pSymbol = SymbolStore::Instance().resolveHandle( handle );
     if( pSymbol && pCallback )

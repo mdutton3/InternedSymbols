@@ -161,11 +161,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\src\InternedSymbols.cpp"
+			RelativePath="..\src\InternedSymbols\InternedSymbols.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\include\InternedSymbols_API.h"
+			RelativePath="..\include\InternedSymbols\InternedSymbols_API.h"
 			>
 		</File>
 	</Files>
