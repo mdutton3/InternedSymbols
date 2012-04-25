@@ -26,6 +26,8 @@
 
 typedef std::size_t HashVal;
 
+#pragma pack(push, 2)
+
 //---------------------------------------------------------------------------------------
 struct InternedSymbol
 {
@@ -47,7 +49,7 @@ struct InternedSymbol
                                     HashVal const hash )
     {
         // m_name already has one character, which accounts for the NULL termiator
-        unsigned int const size_bytes = sizeof( InternedSymbol ) + len;
+        unsigned int const size_bytes = sizeof( InternedSymbol ) + len * sizeof(wchar_t);
 
         // Round the size to a multiple of wchar_t
         unsigned int const num_char = (size_bytes + sizeof(wchar_t) - 1) / sizeof(wchar_t);
