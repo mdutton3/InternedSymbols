@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SolutionDir)../include/;$(SolutionDir)../ExtCode/"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)../include/&quot;;&quot;$(SolutionDir)../ExtCode/&quot;;&quot;$(SolutionDir)../ExtCode/ToBuild/PublicAPI&quot;"
 				PreprocessorDefinitions="INTERNEDSYMBOLS_EXPORT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -111,7 +111,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(SolutionDir)../include/;$(SolutionDir)../ExtCode/"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)../include/&quot;;&quot;$(SolutionDir)../ExtCode/&quot;;&quot;$(SolutionDir)../ExtCode/ToBuild/PublicAPI&quot;"
 				PreprocessorDefinitions="INTERNEDSYMBOLS_EXPORT"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
