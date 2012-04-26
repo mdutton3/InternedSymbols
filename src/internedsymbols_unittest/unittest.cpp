@@ -1,12 +1,13 @@
 // Copyright 2012
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "internedsymbols/InternedSymbols_API.h"
 
 #include <ctime>
 #include <cstdlib>
-#include <iomanip>
 
 #define CPPUNIT_TEST_NAME   InternedSymbol_UnitTest
 
@@ -105,7 +106,7 @@ public:
         wchar_t buffer[BUF_LEN];
         unsigned int len = BUF_LEN;
 
-        InternedSymbol_ResolveHandleW( handle, buffer, &len );
+        InternedSymbol_CopyToW( handle, buffer, &len );
         CPPUNIT_ASSERT( StrLength(str) == len );
         CPPUNIT_ASSERT( 0 == buffer[len] );
         CPPUNIT_ASSERT( wcscmp( str, buffer ) == 0 );
@@ -129,27 +130,27 @@ public:
         unsigned int len = BUF_LEN;
 
         len = BUF_LEN;
-        InternedSymbol_ResolveHandleW( handle, buffer, &len );
+        InternedSymbol_CopyToW( handle, buffer, &len );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen] );
 
         len = nameLen;
-        InternedSymbol_ResolveHandleW( handle, buffer, &len );
+        InternedSymbol_CopyToW( handle, buffer, &len );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen - 1] );
 
         len = nameLen - 1;
-        InternedSymbol_ResolveHandleW( handle, buffer, &len );
+        InternedSymbol_CopyToW( handle, buffer, &len );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen - 1 - 1] );
 
         len = nameLen - 2;
-        InternedSymbol_ResolveHandleW( handle, buffer, &len );
+        InternedSymbol_CopyToW( handle, buffer, &len );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen - 2 - 1] );
 
         len = 1;
-        InternedSymbol_ResolveHandleW( handle, buffer, &len );
+        InternedSymbol_CopyToW( handle, buffer, &len );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[1 - 1] );
     }
@@ -167,6 +168,7 @@ public:
             unsigned int const len;
 
             static void INTERNEDSYMBOLS_API Callback( void * pUserData,
+                                                      InternHandle_t const handle,
                                                       wchar_t const * const cbStr,
                                                       uint32_t const cbLen )
             {
@@ -181,7 +183,7 @@ public:
             }
         } setter = { symbolName, nameLen };
 
-        InternedSymbol_ResolveHandleCallbackW( handle, &StrSetter::Callback, &setter );
+        InternedSymbol_VisitHandleW( handle, &StrSetter::Callback, &setter );
     }
 
     void testNoncontentiousSpeed( )
@@ -298,27 +300,41 @@ public:
 
     void testStringEncoding( )
     {
-        InternHandle_t handle1 = InternedSymbol_AcquireHandleA(  "FooBar", 6 );
-        InternHandle_t handle2 = InternedSymbol_AcquireHandleW( L"FooBar", 6 );
+        static char    const mbliteral[] =  "FooBar";
+        static wchar_t const wcliteral[] = L"FooBar";
+
+        char    mbbuf[100];
+        wchar_t wcbuf[100];
+
+        InternHandle_t handle1 = InternedSymbol_AcquireHandleA( mbliteral, 6 );
+        InternHandle_t handle2 = InternedSymbol_AcquireHandleW( wcliteral, 6 );
         CPPUNIT_ASSERT( 0 != handle1 );
         CPPUNIT_ASSERT( 0 != handle2 );
         CPPUNIT_ASSERT( handle1 == handle2 );
+        uint32_t len;
+
+        InternedSymbol_CopyToA( handle1, mbbuf, &(len = 100) );
+        CPPUNIT_ASSERT( 0 == strncmp( mbliteral, mbbuf, 100 ) );
+        InternedSymbol_CopyToW( handle1, wcbuf, &(len = 100) );
+        CPPUNIT_ASSERT( 0 == wcsncmp( wcliteral, wcbuf, 100 ) );
+
+        InternedSymbol_CopyToA( handle2, mbbuf, &(len = 100) );
+        CPPUNIT_ASSERT( 0 == strncmp( mbliteral, mbbuf, 100 ) );
+        InternedSymbol_CopyToW( handle2, wcbuf, &(len = 100) );
+        CPPUNIT_ASSERT( 0 == wcsncmp( wcliteral, wcbuf, 100 ) );
+
 
         wchar_t wcstr[] = L"\x03A6\x039A\x03A3";
-        char mbstr[100];
-        wcstombs( mbstr, wcstr, 100 );
-
-        std::cout << std::endl;
-        for(unsigned int i = 0; i < 12; ++i)
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)((char*)wcstr)[i] << ',';
-        std::cout << std::endl;
-        for(unsigned int i = 0; i < 12; ++i)
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)((char*)mbstr)[i] << ',';
-        InternHandle_t escape1 = InternedSymbol_AcquireHandleA( mbstr, 3 );
-        InternHandle_t escape2 = InternedSymbol_AcquireHandleW( wcstr, 3 );
-        CPPUNIT_ASSERT( 0 != escape1 );
-        CPPUNIT_ASSERT( 0 != escape2 );
-        CPPUNIT_ASSERT( escape1 == escape2 );
+        size_t const ret = wcstombs( mbbuf, wcstr, 100 );
+        if( size_t(-1) != ret )
+        {   // If we can't convert this string into MBCS, then there's no point
+            // in doing this test.
+            InternHandle_t escape1 = InternedSymbol_AcquireHandleA( mbbuf, 3 );
+            InternHandle_t escape2 = InternedSymbol_AcquireHandleW( wcstr, 3 );
+            CPPUNIT_ASSERT( 0 != escape1 );
+            CPPUNIT_ASSERT( 0 != escape2 );
+            CPPUNIT_ASSERT( escape1 == escape2 );
+        }
     }
 };
 

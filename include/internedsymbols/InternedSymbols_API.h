@@ -82,16 +82,22 @@ extern "C" {
     void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReleaseHandle(
         InternHandle_t const handle );
 
+    //! @brief Get the length, in wide characters, of the symbol name
+    //! @param[in] handle A valid handle to a symbol
+    //! @return The length of the symbol name, in wide characters, excluding the NULL terminator
+    uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLength(
+        InternHandle_t const handle );
+
     //! @brief Copy the ASCII name of the interned symbol to the buffer
     //! @details This method essentially calls wcstombs underneath after finding the symbol.
     //! @param[in] handle A valid handle to the symbol
     //! @param[out] buf An output buffer to hold the copied name
-    //! @param[in,out] len (in) The maximum buffer length, in characters.
-    //! @param[in,out] len (out) The actual length of the name, may be larger than the original buffer length
-    //void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleA(
-    //    InternHandle_t const handle,
-    //    char * const buf,
-    //    uint32_t * len );
+    //! @param[in,out] len (in) The maximum buffer length, in (multibyte) characters.
+    //! @param[in,out] len (out) The actual length of the name copied, may be larger than the original buffer length
+    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToA(
+        InternHandle_t const handle,
+        char * const buf,
+        uint32_t * len );
 
 
     //! @brief Copy the Unicode name of the interned symbol to the buffer
@@ -99,8 +105,8 @@ extern "C" {
     //! @param[in] handle A valid handle to the symbol
     //! @param[out] buf An output buffer to hold the copied name
     //! @param[in,out] len (in) The maximum buffer length, in characters.
-    //! @param[in,out] len (out) The actual length of the name, may be larger than the original buffer length
-    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleW(
+    //! @param[in,out] len (out) The actual length of the name, in characters.
+    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToW(
         InternHandle_t const handle,
         wchar_t * const buf,
         uint32_t * len );
@@ -113,19 +119,21 @@ extern "C" {
     //! @param[in] pUserData The user data supplied with the callback
     //! @param[in] str The NULL-terminated Unicode symbol name
     //! @param[in] len The length of the symbol name, in characters
-    typedef void (INTERNEDSYMBOLS_API *InternedSymbol_StrSetterW)(
+    typedef void (INTERNEDSYMBOLS_API *InternedSymbol_CallbackFnW)(
         void * pUserData,
+        InternHandle_t const handle,
         wchar_t const * const str,
         uint32_t const len );
 
-    //! @brief Call pCallback with the name of the interned symbol
+    //! @brief Call pCallback with the name and handle of the interned symbol
     //! @param[in] handle A valid handle to a symbol
     //! @param[in] pCallback The callback to call with the symbol name
     //! @param[in] pUserData Caller-specific data to be passed to pCallback
-    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleCallbackW(
+    //! @see InternedSymbol_CallbackFnW
+    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_VisitHandleW(
         InternHandle_t const handle,
-        InternedSymbol_StrSetterW const pCallback,
-        void * const pUserData );
+        InternedSymbol_CallbackFnW const pCallback,
+        void * const pUserData = 0 );
 
 #ifdef __cplusplus
 } // end extern "C"
