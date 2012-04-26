@@ -18,6 +18,7 @@
 #include <cstring>
 #include <vector>
 #include <stdexcept>
+#include <memory>
 
 #include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
@@ -34,8 +35,8 @@ typedef std::size_t HashVal;
 struct InternedSymbol
 {
     mutable long m_refCount;  //!< Reference count for acquire/release
-    HashVal      m_hash;      //!< A pre-computed hash of the symbol name    
-    unsigned int m_length;    //!< Name length in characters, excluding NULL terminator    
+    HashVal      m_hash;      //!< A pre-computed hash of the symbol name
+    unsigned int m_length;    //!< Name length in characters, excluding NULL terminator
     wchar_t      m_name[1];   //!< Start of name array, NULL terminated
 
     static HashVal hash( wchar_t const * const str, unsigned int const len )
@@ -44,11 +45,9 @@ struct InternedSymbol
     }
 
     //! @brief Create a symbol instance with a name suffix
-    //! @param str The name of the symbol
     //! @param len The length in characters of the symbol name, excluding NULL terminator
     //! @param hash The hash of the symbol name
-    static InternedSymbol * create( wchar_t const * const str,
-                                    unsigned int len,
+    static InternedSymbol * create( unsigned int len,
                                     HashVal const hash )
     {
         // m_name already has one character, which accounts for the NULL termiator
@@ -59,7 +58,7 @@ struct InternedSymbol
 
         wchar_t * const pRaw = new wchar_t[ num_char ];
 
-        InternedSymbol * const pSymbol = new(pRaw) InternedSymbol( str, len, hash );
+        InternedSymbol * const pSymbol = new(pRaw) InternedSymbol( len, hash );
         return pSymbol;
     }
 
@@ -87,15 +86,13 @@ private:
     //! @param str The name of the symbol
     //! @param len The length in characters of the symbol name, excluding NULL terminator
     //! @param hash The hash of the symbol name
-    InternedSymbol( wchar_t const * const str,
-                    unsigned int len,
+    InternedSymbol( unsigned int len,
                     HashVal const hash )
         : m_hash( hash )
         , m_refCount( 1 )
-        , m_length( len )        
+        , m_length( len )
     {
-        wmemcpy( m_name, str, len );
-        m_name[len] = 0;
+        m_name[0] = 0;
     }
 };
 
@@ -103,19 +100,67 @@ private:
 //! so as long as the offset is a multiple of 4, we're good.
 typedef char s__static_assert__m_refCount_offset4[ ((offsetof(InternedSymbol,m_refCount) & 0x3) == 0) ? 1 : -1 ];
 
+
+//---------------------------------------------------------------------------------------
+//! Call a functor for each wide-character converted from a multi-byte string
+//! Excludes the terminating NULL character!
+//! @param mbstr The multibyte string to iterator/convert
+//! @param mblen The number of bytes in the multi-byte string
+//! @param fn The functor to call with each converted wide-character
+template<typename FUNC>
+static inline void foreach_mbc( char const * mbstr, uint32_t mblen, FUNC & fn )
+{
+    mbstate_t state = { 0 };
+
+    wchar_t wc = 0;
+
+    while(mblen > 0)
+    {
+        int const ret = mbrtowc( &wc, mbstr, mblen, &state );
+        if( ret <= 0 )
+            break;
+        fn( wc );
+        mbstr += ret;
+        mblen -= ret;
+    }
+}
+
+// Functor for accumulating the length and hashcode of a wide string
+struct WSLenHashAccum
+{
+    unsigned int wlen;
+    HashVal seed;
+    void operator()( wchar_t const wc )
+    {
+        ++wlen;
+        boost::hash_combine(seed, wc);
+    }
+};
+
+// Functor for writing wide characters to a wide string buffer
+struct WSBufAppender
+{
+    wchar_t * wstr;
+    void operator()( wchar_t const wc )
+    {
+        *wstr = wc;
+        ++wstr;
+    }
+};
+
 //---------------------------------------------------------------------------------------
 class SymbolStore
 {
 private:
     typedef std::vector<InternedSymbol const *> SymbolBucket;
     typedef boost::unordered_map< HashVal, SymbolBucket > HashMap;
-    
+
     typedef boost::mutex Lock;
     Lock m_symbolLock;
     HashMap m_hashMap;
 
     SymbolStore() { }
-    
+
 public:
     ~SymbolStore( )
     {
@@ -131,15 +176,53 @@ public:
         return s_instance;
     }
 
+    InternedSymbol const * acquireHandle( char const * const str,
+                                          uint32_t const len )
+    {
+        // Compute the wide-char length and hash
+        // We have to compute the length manually ahead of time
+        // because str may not be NULL terminated and all the ANSI
+        // string conversion methods expect it to be.
+        WSLenHashAccum mbstr_accum = { 0 };
+        foreach_mbc( str, len, mbstr_accum );
+
+        // Convienent aliases
+        HashVal const nameHash = mbstr_accum.seed;
+        unsigned int const wcLen = mbstr_accum.wlen;
+
+        // We create this earlier here because we'll use it as a buffer
+        std::auto_ptr<InternedSymbol> pTemp( InternedSymbol::create( wcLen, nameHash ) );
+        wchar_t const * pNameBuf = pTemp->m_name;
+
+        // Transform to wide string directly into symbol name buffer
+        WSBufAppender mbstr_xform = { pTemp->m_name };
+        foreach_mbc( str, len, mbstr_xform );
+        *(mbstr_xform.wstr) = 0; // Ensure NULL termination
+
+        // Look for an existing entry that matches
+        Lock::scoped_lock scopedLock( m_symbolLock );
+        SymbolBucket & bucket = m_hashMap[ nameHash ];
+        BOOST_FOREACH( InternedSymbol const * pSymbol, bucket )
+        {
+            if( wcscmp( pSymbol->m_name, pNameBuf ) == 0 )
+            {   // Matched symbol name
+                pSymbol->acquire( );
+                return pSymbol;
+            }
+        }
+
+        // No matches, use the temp
+        bucket.push_back( pTemp.get() );
+        return pTemp.release();
+    }
+
     InternedSymbol const * acquireHandle( wchar_t const * const str,
                                     uint32_t const len )
     {
         HashVal const nameHash = InternedSymbol::hash( str, len );
 
         Lock::scoped_lock scopedLock( m_symbolLock );
-
         SymbolBucket & bucket = m_hashMap[ nameHash ];
-
         BOOST_FOREACH( InternedSymbol const * pSymbol, bucket )
         {
             if( wcscmp( pSymbol->m_name, str ) == 0 )
@@ -150,7 +233,9 @@ public:
         }
 
         // No matches, create one
-        InternedSymbol * const pSymbol = InternedSymbol::create( str, len, nameHash );
+        InternedSymbol * const pSymbol = InternedSymbol::create( len, nameHash );
+        wmemcpy( pSymbol->m_name, str, len );
+        pSymbol->m_name[len] = 0; // Ensure NULL termination
         bucket.push_back( pSymbol );
 
         return pSymbol;
@@ -168,11 +253,30 @@ public:
         if( it != bucket.end () )
         {
             bucket.erase( it );
-            delete pSymbol;            
+            delete pSymbol;
         }
     }
 };
 
+//---------------------------------------------------------------------------------------
+InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleA(
+    char const * const str,
+    uint32_t const len )
+{
+//    enum { BUF_SIZE = 256 };
+//
+//    size_t const mbLen = mbrlen()
+//    if( len <= MAX_LEN )
+//    {
+//        wchar_t wbuffer[BUF_SIZE];
+//        size_t const ret = mbstowcs( wbuffer, str, BUF_SIZE );
+//        if( size_t(-1) == ret )
+//            return 0;
+//        else if( )
+//            return InternedSymbol_AcquireHandleW( wbuffer, ret );
+//    }
+    return SymbolStore::Instance( ).acquireHandle( str, len );
+}
 
 //---------------------------------------------------------------------------------------
 InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleW(
@@ -234,6 +338,6 @@ void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleCallbackW(
     if( pSymbol && pCallback )
     {
         pCallback( pUserData, pSymbol->m_name, pSymbol->m_length );
-    }  
+    }
 }
 

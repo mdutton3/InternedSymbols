@@ -58,9 +58,9 @@ extern "C" {
     //! @param[in] str The ASCII symbol name, case sensitive
     //! @param[in] len The length of the name, in characters
     //! @return A handle to the interned symbol
-    //InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleA(
-    //    char const * const str,
-    //    uint32_t const len );
+    InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleA(
+        char const * const str,
+        uint32_t const len );
 
     //! @brief Get a new or existing handle to the given symbol name
     //! @param[in] str The Unicode symbol name, case sensitive

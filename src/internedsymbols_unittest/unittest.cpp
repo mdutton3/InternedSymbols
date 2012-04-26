@@ -5,7 +5,8 @@
 #include "internedsymbols/InternedSymbols_API.h"
 
 #include <ctime>
-
+#include <cstdlib>
+#include <iomanip>
 
 #define CPPUNIT_TEST_NAME   InternedSymbol_UnitTest
 
@@ -42,6 +43,7 @@ class CPPUNIT_TEST_NAME : public CppUnit::TestFixture
         CPPUNIT_TEST( testResolveCallback );
         CPPUNIT_TEST( testNoncontentiousSpeed );
         CPPUNIT_TEST( testManyNames );
+        CPPUNIT_TEST( testStringEncoding );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -242,7 +244,7 @@ public:
                 }
             }
         }
-    } // end testManyNames_acquire    
+    } // end testManyNames_acquire
 
     void testManyNames_duplicate( )
     {
@@ -283,7 +285,7 @@ public:
         double const msHot = timeTest( &CPPUNIT_TEST_NAME::testManyNames_acquire );
         double const msReacquire = timeTest( &CPPUNIT_TEST_NAME::testManyNames_duplicate );
         timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );
-        double const msRelease = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );       
+        double const msRelease = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );
         double const msDealloc = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );
 
         std::wcout << std::endl;
@@ -292,6 +294,31 @@ public:
         std::wcout << L"It took " << msReacquire << L" ms to reacquire 100000 existing names" << std::endl;
         std::wcout << L"It took " << msRelease   << L" ms to release 100000 existing names" << std::endl;
         std::wcout << L"It took " << msDealloc   << L" ms to dealloc 100000 existing names" << std::endl;
+    }
+
+    void testStringEncoding( )
+    {
+        InternHandle_t handle1 = InternedSymbol_AcquireHandleA(  "FooBar", 6 );
+        InternHandle_t handle2 = InternedSymbol_AcquireHandleW( L"FooBar", 6 );
+        CPPUNIT_ASSERT( 0 != handle1 );
+        CPPUNIT_ASSERT( 0 != handle2 );
+        CPPUNIT_ASSERT( handle1 == handle2 );
+
+        wchar_t wcstr[] = L"\x03A6\x039A\x03A3";
+        char mbstr[100];
+        wcstombs( mbstr, wcstr, 100 );
+
+        std::cout << std::endl;
+        for(unsigned int i = 0; i < 12; ++i)
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)((char*)wcstr)[i] << ',';
+        std::cout << std::endl;
+        for(unsigned int i = 0; i < 12; ++i)
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)((char*)mbstr)[i] << ',';
+        InternHandle_t escape1 = InternedSymbol_AcquireHandleA( mbstr, 3 );
+        InternHandle_t escape2 = InternedSymbol_AcquireHandleW( wcstr, 3 );
+        CPPUNIT_ASSERT( 0 != escape1 );
+        CPPUNIT_ASSERT( 0 != escape2 );
+        CPPUNIT_ASSERT( escape1 == escape2 );
     }
 };
 
