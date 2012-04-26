@@ -183,7 +183,7 @@ InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleW(
 }
 
 //---------------------------------------------------------------------------------------
-void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReacquireHandle(
+void INTERNEDSYMBOLS_DLLAPI InternedSymbol_DuplicateHandle(
     InternHandle_t const handle )
 {
     InternedSymbol const * const pSymbol = handle;
