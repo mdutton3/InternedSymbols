@@ -312,7 +312,40 @@ void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReleaseHandle(
 }
 
 //---------------------------------------------------------------------------------------
-void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleW(
+uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLength(
+    InternHandle_t const handle )
+{
+    InternedSymbol const * const pSymbol = handle;
+    if( pSymbol )
+        return pSymbol->m_length;
+    else
+        return 0;
+}
+
+//---------------------------------------------------------------------------------------
+void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToA(
+    InternHandle_t const handle,
+    char * const buf,
+    uint32_t * len )
+{
+    using namespace std;
+    InternedSymbol const * const pSymbol = handle;
+    if( pSymbol && (len > 0) )
+    {
+        size_t const req_len = wcstombs( NULL, pSymbol->m_name, *len );
+        size_t const min_len = min( size_t(*len), req_len );
+        size_t const ret = wcstombs( buf, pSymbol->m_name, min_len );
+        // Ensure NULL termination
+        if( size_t(-1) == ret )
+            buf[0] = 0;
+        else
+            buf[ min( ret, *len - 1 ) ] = 0;
+        *len = req_len;
+    }
+}
+
+//---------------------------------------------------------------------------------------
+void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToW(
     InternHandle_t const handle,
     wchar_t * const buf,
     uint32_t * len )
@@ -329,15 +362,15 @@ void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleW(
 }
 
 //---------------------------------------------------------------------------------------
-void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ResolveHandleCallbackW(
+void INTERNEDSYMBOLS_DLLAPI InternedSymbol_VisitHandleW(
     InternHandle_t const handle,
-    InternedSymbol_StrSetterW const pCallback,
+    InternedSymbol_CallbackFnW const pCallback,
     void * const pUserData )
 {
     InternedSymbol const * const pSymbol = handle;
-    if( pSymbol && pCallback )
+    if( pSymbol )
     {
-        pCallback( pUserData, pSymbol->m_name, pSymbol->m_length );
+        pCallback( pUserData, handle, pSymbol->m_name, pSymbol->m_length );
     }
 }
 

@@ -29,25 +29,25 @@ void InternedSymbol_ReleaseHandle(
     InternHandle_t const handle );
 
 // Copy the string referenced by the given handle
-void InternedSymbol_ResolveHandleA(
+void InternedSymbol_CopyToA(
     InternHandle_t const handle,
     char * const buf,
     uint32_t * len );
-void InternedSymbol_ResolveHandleW(
+void InternedSymbol_CopyToW(
     InternHandle_t const handle,
     wchar_t * const buf,
     uint32_t * len );
 
-// The callback signature used by InternedSymbol_ResolveHandleCallbackW
-typedef void (*InternedSymbol_StrSetterW)(
+// The callback signature used by InternedSymbol_VisitHandleW
+typedef void (*InternedSymbol_CallbackFnW)(
     void * pUserData,
     wchar_t const * const str,
     uint32_t const len );
 
 // Provide the underlying string buffer to a callback for processing
-void InternedSymbol_ResolveHandleCallbackW(
+void InternedSymbol_VisitHandleW(
     InternHandle_t const handle,
-    InternedSymbol_StrSetterW const pCallback,
+    InternedSymbol_CallbackFnW const pCallback,
     void * const pUserData );
 ```
 
@@ -76,14 +76,14 @@ assert( handle1 == handle3 );
 // Copy the underlying string
 wchar_t buffer[100];
 uint32_t len = 100;
-InternedSymbol_ResolveHandleW( handle1, buffer, &len );
+InternedSymbol_CopyToW( handle1, buffer, &len );
 
 // Or have the underlying string passed to a function for processing
 // This is useful when direct access to the underlying string buffer
 // could help. It's done like this to make the lifetime of the
 // underlying string buffer explicit (i.e. for the life of the
 // callback invocation)
-InternedSymbol_ResolveHandleCallbackW( handle1, &foo, &foo_ctx );
+InternedSymbol_VisitHandleW( handle1, &foo, &foo_ctx );
 
 // Must be released as many times as it is Acquired/Duplicated
 // Since all the handles in this example are equal, we can call
