@@ -5,9 +5,9 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-int wmain( int argc, wchar_t* argv[] )
+int main( int argc, char* argv[] )
 {
-    std::wcout << L"--------------- BEGIN CPPUNIT TEST ---------------" << std::endl;
+    std::cout << "--------------- BEGIN CPPUNIT TEST ---------------" << std::endl;
 
     // Get the top level suite from the registry
     CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
@@ -22,7 +22,7 @@ int wmain( int argc, wchar_t* argv[] )
     // Run the tests.
     bool wasSucessful = runner.run();
 
-    std::wcout << L"---------------- END CPPUNIT TEST ----------------" << std::endl;
+    std::cout << "---------------- END CPPUNIT TEST ----------------" << std::endl;
 
     // Return error code 1 if the one of test failed.
     return wasSucessful ? 0 : 1;

@@ -17,6 +17,7 @@
 
 #include <cstring>
 #include <vector>
+#include <stdexcept>
 
 #include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
@@ -73,7 +74,7 @@ struct InternedSymbol
     bool release( ) const
     {
         if( m_refCount == 0 )
-            throw new std::exception("Released an interned symbol too many times!");
+            throw new std::invalid_argument("Released an interned symbol too many times!");
 
         return (AtomicDecrement( &m_refCount ) == 0);
     }
