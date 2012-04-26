@@ -1,7 +1,7 @@
-SUBDIRS( internedsymbols )
+SUBDIRS( internedsymbols internedsymbols_unittest )
 include_directories( . )
-include_directories( ../ExtCode/ )
-include_directories( ../ExtCode/ToBuild/PublicAPI )
+include_directories( ${CMAKE_SOURCE_DIR}/ExtCode/ )
+include_directories( ${CMAKE_SOURCE_DIR}/ExtCode/ToBuild/PublicAPI )
 
 
 

@@ -1,4 +1,6 @@
-file(GLOB InternedSymbols_SRC *.cpp *.c)
+
+file(GLOB SRC *.cpp *.c)
+file(GLOB INC *.hpp *.h ${InternedSymbols_SOURCE_DIR}/include/*.h* )
 
 include_directories( . ${InternedSymbols_SOURCE_DIR}/include )
-add_library( libinternedsymbols SHARED ${InternedSymbols_SRC} )
+add_library( libinternedsymbols SHARED ${SRC} ${INC} )
