@@ -244,15 +244,15 @@ public:
         }
     } // end testManyNames_acquire    
 
-    void testManyNames_reacquire( )
+    void testManyNames_duplicate( )
     {
         int count = 0;
         for( int count = 0; count < 100000; ++count )
         {
             InternHandle_t const handle = manyNames_handles[count];
-            InternedSymbol_ReacquireHandle( handle );
+            InternedSymbol_DuplicateHandle( handle );
         }
-    } // end testManyNames_release
+    } // end testManyNames_duplicate
 
     void testManyNames_release( )
     {
@@ -281,7 +281,7 @@ public:
     {
         double const msCold = timeTest( &CPPUNIT_TEST_NAME::testManyNames_acquire );
         double const msHot = timeTest( &CPPUNIT_TEST_NAME::testManyNames_acquire );
-        double const msReacquire = timeTest( &CPPUNIT_TEST_NAME::testManyNames_reacquire );
+        double const msReacquire = timeTest( &CPPUNIT_TEST_NAME::testManyNames_duplicate );
         timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );
         double const msRelease = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );       
         double const msDealloc = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );

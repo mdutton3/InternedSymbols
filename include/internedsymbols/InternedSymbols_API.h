@@ -74,13 +74,8 @@ extern "C" {
     //! @details This increase the reference count to the handle and is more efficient
     //!     than calling InternedSymbol_AcquireHandleT again with the symbol name.
     //! @param[in] handle The valid handle to acquire
-    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReacquireHandle(
+    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_DuplicateHandle(
         InternHandle_t const handle );
-
-    //! @brief Release an existing handle acquired with InternedSymbol_AcquireHandleT
-    //! @param[in] handle The valid handle to release
-    //void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReleaseHandleA(
-    //    InternHandle_t const handle );
 
     //! @brief Release an existing handle acquired with InternedSymbol_AcquireHandleT
     //! @param[in] handle The valid handle to release
