@@ -4,7 +4,7 @@ find_package( CppUnit REQUIRED )
 include_directories( . ${CPPUNIT_INCLUDE_DIR} ${InternedSymbols_SOURCE_DIR}/include )
 
 add_library( unittest_helper SHARED helper/helper.cpp )
-
+target_link_libraries( unittest_helper libinternedsymbols )
 
 file(GLOB SRC *.cpp)
 add_executable( unittest ${SRC} )
