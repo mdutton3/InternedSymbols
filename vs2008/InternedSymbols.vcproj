@@ -161,6 +161,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\src\internedsymbols\atomic.hpp"
+			>
+		</File>
+		<File
 			RelativePath="..\src\InternedSymbols\InternedSymbols.cpp"
 			>
 		</File>

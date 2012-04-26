@@ -7,7 +7,7 @@
 template<int N>
 static InternHandle_t GetHandle( wchar_t const (&str)[N] )
 {
-    return InternedSymbol_GetHandleW( str, N - 1 );
+    return InternedSymbol_AcquireHandleW( str, N - 1 );
 }
 
 struct StaticInit
@@ -18,6 +18,11 @@ struct StaticInit
     StaticInit( wchar_t const (&str)[N] )
     {
         handle = GetHandle( str );
+    }
+
+    ~StaticInit( )
+    {
+        InternedSymbol_ReleaseHandle( handle );
     }
 };
 
@@ -30,7 +35,7 @@ InternHandle_t DLLSYMBOL_EXPORT Helper_GetHelper2( ) { return helper2.handle; }
 
 InternHandle_t DLLSYMBOL_EXPORT Helper_GetSymbol( std::wstring const & name )
 {
-    return InternedSymbol_GetHandleW( name.c_str(), name.length() );
+    return InternedSymbol_AcquireHandleW( name.c_str(), name.length() );
 }
 
 
