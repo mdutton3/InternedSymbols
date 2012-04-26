@@ -27,7 +27,7 @@ unsigned int StrLength( CHAR const (&str)[N] )
 template<unsigned int N>
 InternHandle_t GetHandle( wchar_t const (&str)[N] )
 {
-    return InternedSymbol_GetHandleW( str, StrLength(str) );
+    return InternedSymbol_AcquireHandleW( str, StrLength(str) );
 }
 
 
@@ -213,11 +213,14 @@ public:
         std::wcout << L"It took " << msCold << L" ms to do " << NUM_ROUND << L" rounds of 100 names" << std::endl;
     }
 
-    void testManyNames_helper( )
+    InternHandle_t manyNames_handles[100000];
+
+    void testManyNames_acquire( )
     {
         wchar_t name[] = L"manyname00000";
         unsigned int const nameLen = StrLength( name );
 
+        int count = 0;
         for( int a = 0; a < 10; ++a )
         {
             for( int b = 0; b < 10; ++b )
@@ -233,31 +236,62 @@ public:
                             name[10] = L'0' + c;
                             name[11] = L'0' + d;
                             name[12] = L'0' + e;
-                            GetHandle( name );
+                            manyNames_handles[count++] = GetHandle( name );
                         }
                     }
                 }
             }
         }
-    } // end testManyNames_helper
+    } // end testManyNames_acquire    
+
+    void testManyNames_reacquire( )
+    {
+        int count = 0;
+        for( int count = 0; count < 100000; ++count )
+        {
+            InternHandle_t const handle = manyNames_handles[count];
+            InternedSymbol_ReacquireHandle( handle );
+        }
+    } // end testManyNames_release
+
+    void testManyNames_release( )
+    {
+        int count = 0;
+        for( int count = 0; count < 100000; ++count )
+        {
+            InternHandle_t const handle = manyNames_handles[count];
+            InternedSymbol_ReleaseHandle( handle );
+        }
+    } // end testManyNames_release
+
+
+    typedef void (CPPUNIT_TEST_NAME::* TestFnPtr)(void);
+
+    double timeTest( TestFnPtr pTest )
+    {
+        clock_t const startTime = clock( );
+            ((*this).*(pTest))( );
+        clock_t const endTime = clock( );
+        clock_t const delta = endTime - startTime;
+        double const ms = delta * 1000.0 / CLOCKS_PER_SEC;
+        return ms;
+    }
 
     void testManyNames( )
     {
-        clock_t startTime = clock( );
-            testManyNames_helper();
-        clock_t endTime = clock( );
-        clock_t const deltaCold = endTime - startTime;
-        double const msCold = deltaCold * 1000.0 / CLOCKS_PER_SEC;
+        double const msCold = timeTest( &CPPUNIT_TEST_NAME::testManyNames_acquire );
+        double const msHot = timeTest( &CPPUNIT_TEST_NAME::testManyNames_acquire );
+        double const msReacquire = timeTest( &CPPUNIT_TEST_NAME::testManyNames_reacquire );
+        timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );
+        double const msRelease = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );       
+        double const msDealloc = timeTest( &CPPUNIT_TEST_NAME::testManyNames_release );
 
-        startTime = clock( );
-            testManyNames_helper();
-        endTime = clock( );
-        clock_t const deltaHot = endTime - startTime;
-        double const msHot = deltaHot * 1000.0 / CLOCKS_PER_SEC;
-        
         std::wcout << std::endl;
-        std::wcout << L"It took " << msCold << L" ms to do 10000 names, cold" << std::endl;
-        std::wcout << L"It took " << msHot << L" ms to do 10000 names, hot" << std::endl;
+        std::wcout << L"It took " << msCold      << L" ms to acquire 100000 new names" << std::endl;
+        std::wcout << L"It took " << msHot       << L" ms to acquire 100000 existing names" << std::endl;
+        std::wcout << L"It took " << msReacquire << L" ms to reacquire 100000 existing names" << std::endl;
+        std::wcout << L"It took " << msRelease   << L" ms to release 100000 existing names" << std::endl;
+        std::wcout << L"It took " << msDealloc   << L" ms to dealloc 100000 existing names" << std::endl;
     }
 };
 

@@ -58,18 +58,34 @@ extern "C" {
     //! @param[in] str The ASCII symbol name, case sensitive
     //! @param[in] len The length of the name, in characters
     //! @return A handle to the interned symbol
-    //InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetHandleA(
+    //InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleA(
     //    char const * const str,
     //    uint32_t const len );
 
     //! @brief Get a new or existing handle to the given symbol name
-    //! @param[in] str The ASCII symbol name, case sensitive
+    //! @param[in] str The Unicode symbol name, case sensitive
     //! @param[in] len The length of the name, in characters
     //! @return A handle to the interned symbol
-    InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetHandleW(
+    InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleW(
         wchar_t const * const str,
         uint32_t const len );
 
+    //! @brief Reacquire an existing handle
+    //! @details This increase the reference count to the handle and is more efficient
+    //!     than calling InternedSymbol_AcquireHandleT again with the symbol name.
+    //! @param[in] handle The valid handle to acquire
+    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReacquireHandle(
+        InternHandle_t const handle );
+
+    //! @brief Release an existing handle acquired with InternedSymbol_AcquireHandleT
+    //! @param[in] handle The valid handle to release
+    //void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReleaseHandleA(
+    //    InternHandle_t const handle );
+
+    //! @brief Release an existing handle acquired with InternedSymbol_AcquireHandleT
+    //! @param[in] handle The valid handle to release
+    void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReleaseHandle(
+        InternHandle_t const handle );
 
     //! @brief Copy the ASCII name of the interned symbol to the buffer
     //! @details This method essentially calls wcstombs underneath after finding the symbol.
@@ -83,7 +99,7 @@ extern "C" {
     //    uint32_t * len );
 
 
-    //! @brief Copy the UTF-16 name of the interned symbol to the buffer
+    //! @brief Copy the Unicode name of the interned symbol to the buffer
     //! @details This method essentially calls wcscpy underneath after finding the symbol.
     //! @param[in] handle A valid handle to the symbol
     //! @param[out] buf An output buffer to hold the copied name
