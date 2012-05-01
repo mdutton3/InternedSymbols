@@ -160,22 +160,30 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath="..\src\internedsymbols\atomic.hpp"
+		<Filter
+			Name="include"
 			>
-		</File>
-		<File
-			RelativePath="..\src\InternedSymbols\InternedSymbols.cpp"
+			<File
+				RelativePath="..\include\InternedSymbols\CExports.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\internedsymbols\MethodSignatures.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="src"
 			>
-		</File>
-		<File
-			RelativePath="..\include\InternedSymbols\CExports.h"
-			>
-		</File>
-		<File
-			RelativePath="..\include\internedsymbols\MethodSignatures.h"
-			>
-		</File>
+			<File
+				RelativePath="..\src\internedsymbols\atomic.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\InternedSymbols\InternedSymbols.cpp"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
