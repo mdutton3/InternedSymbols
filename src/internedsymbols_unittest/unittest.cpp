@@ -8,6 +8,7 @@
 
 #include <ctime>
 #include <cstdlib>
+#include <cstring>
 
 #define CPPUNIT_TEST_NAME   InternedSymbol_UnitTest
 
