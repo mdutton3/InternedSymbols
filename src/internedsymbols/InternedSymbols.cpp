@@ -161,6 +161,22 @@ private:
 
     SymbolStore() { }
 
+    static InternedSymbol const * SearchBucket( SymbolBucket const & bucket,
+                                                wchar_t const * const str,
+                                                unsigned int const len )
+    {
+        BOOST_FOREACH( InternedSymbol const * pSymbol, bucket )
+        {
+            if( (pSymbol->m_length == len) &&
+                (wcsncmp( pSymbol->m_name, str, len ) == 0) )
+            {   // Matched symbol name
+                return pSymbol;
+            }
+        }
+
+        return 0;
+    }
+
 public:
     ~SymbolStore( )
     {
@@ -202,13 +218,10 @@ public:
         // Look for an existing entry that matches
         Lock::scoped_lock scopedLock( m_symbolLock );
         SymbolBucket & bucket = m_hashMap[ nameHash ];
-        BOOST_FOREACH( InternedSymbol const * pSymbol, bucket )
+        if( InternedSymbol const * pSymbol = SearchBucket( bucket, pNameBuf, len ) )
         {
-            if( wcscmp( pSymbol->m_name, pNameBuf ) == 0 )
-            {   // Matched symbol name
-                pSymbol->acquire( );
-                return pSymbol;
-            }
+            pSymbol->acquire( );
+            return pSymbol;
         }
 
         // No matches, use the temp
@@ -223,13 +236,11 @@ public:
 
         Lock::scoped_lock scopedLock( m_symbolLock );
         SymbolBucket & bucket = m_hashMap[ nameHash ];
-        BOOST_FOREACH( InternedSymbol const * pSymbol, bucket )
+
+        if( InternedSymbol const * pSymbol = SearchBucket( bucket, str, len ) )
         {
-            if( wcscmp( pSymbol->m_name, str ) == 0 )
-            {   // Matched symbol name
-                pSymbol->acquire( );
-                return pSymbol;
-            }
+            pSymbol->acquire( );
+            return pSymbol;
         }
 
         // No matches, create one
