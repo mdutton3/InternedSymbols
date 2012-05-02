@@ -179,11 +179,15 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\src\internedsymbols_unittest\testrunner.cpp"
+			RelativePath="..\src\internedsymbols_unittest\CExports_Test.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\src\internedsymbols_unittest\CExports_Test.cpp"
+			RelativePath="..\src\internedsymbols_unittest\SymbolRef_Test.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\internedsymbols_unittest\testrunner.cpp"
 			>
 		</File>
 	</Files>
