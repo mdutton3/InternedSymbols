@@ -171,6 +171,10 @@
 				RelativePath="..\include\internedsymbols\MethodSignatures.h"
 				>
 			</File>
+			<File
+				RelativePath="..\include\internedsymbols\SymbolRef.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="src"
