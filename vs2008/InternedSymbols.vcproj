@@ -172,6 +172,10 @@
 			RelativePath="..\include\InternedSymbols\InternedSymbols_API.h"
 			>
 		</File>
+		<File
+			RelativePath="..\include\internedsymbols\MethodSignatures.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
