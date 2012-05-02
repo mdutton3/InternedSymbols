@@ -4,7 +4,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "internedsymbols/InternedSymbols_API.h"
+#include "internedsymbols/CExports.h"
 
 #include <ctime>
 #include <cstdlib>

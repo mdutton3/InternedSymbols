@@ -169,7 +169,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\include\InternedSymbols\InternedSymbols_API.h"
+			RelativePath="..\include\InternedSymbols\CExports.h"
 			>
 		</File>
 		<File
