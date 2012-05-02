@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#define CPPUNIT_TEST_NAME   InternedSymbol_UnitTest
+#define CPPUNIT_TEST_NAME   CExports_Test
 
 // Gets handles for the two symbols interned during static initialization
 InternHandle_t DLLSYMBOL_IMPORT Helper_GetHelper1( );
