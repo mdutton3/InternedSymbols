@@ -168,7 +168,7 @@ private:
         BOOST_FOREACH( InternedSymbol const * pSymbol, bucket )
         {
             if( (pSymbol->m_length == len) &&
-                (wcsncmp( pSymbol->m_name, str, len ) == 0) )
+                (wmemcmp( pSymbol->m_name, str, len ) == 0) )
             {   // Matched symbol name
                 return pSymbol;
             }
@@ -337,13 +337,26 @@ uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLength(
 int32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_Compare( InternHandle_t const lhs,
                                                        InternHandle_t const rhs )
 {
+    using std::min;
+
     if( lhs == rhs )
-        return 0;
+        return 0; // Equal handle <==> Equal strings
     else
     {
-        wchar_t const * const pLeft  = (lhs ? lhs->m_name : 0);
-        wchar_t const * const pRight = (rhs ? rhs->m_name : 0);
-        return wcscmp( pLeft, pRight );
+        InternedSymbol const * const pLeft = lhs;
+        InternedSymbol const * const pRight = rhs;
+
+        // String may be different lengths
+        // We can only compare the longest prefix of the two strings
+        int const minLen = min( pLeft->m_length, pRight->m_length );
+        int const result = wmemcmp( pLeft->m_name, pRight->m_name, minLen );
+
+        // Since we might be comparing prefixes, instead of full strings,
+        // the meaning of wmemcmp(...)==0 has changed.
+        // We follow the convention of the documented by GNU that shorter
+        // strings precede longer strings, with equal prefixes.
+        int const lenDiff = pLeft->m_length - pRight->m_length; // (x<0) if left is shorter than right, etc.
+        return ( result == 0 ) ? lenDiff : result;
     }
 }
 
