@@ -89,6 +89,15 @@ extern "C" {
     typedef uint32_t (INTERNEDSYMBOLS_API InternedSymbol_GetLength_type) (
         InternHandle_t const handle );
 
+    //! @brief Compare the names of the two symbols, lexographically
+    //! @param[in] lhs Handle of the left-hand symbol for comparison
+    //! @param[in] rhs Handle of the right-hand symbol for comparison
+    //! @return <0 if (lhs <  rhs)
+    //! @return  0 if (lhs == rhs)
+    //! @return >0 if (lhs >  rhs)
+    typedef int32_t (INTERNEDSYMBOLS_API InternedSymbol_Compare_type) (
+        InternHandle_t const lhs, InternHandle_t const rhs );
+
     //! @brief Copy the ASCII name of the interned symbol to the buffer
     //! @details This method essentially calls wcstombs underneath after finding the symbol.
     //! @param[in] handle A valid handle to the symbol
