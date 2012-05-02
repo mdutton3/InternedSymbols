@@ -183,7 +183,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\src\internedsymbols_unittest\unittest.cpp"
+			RelativePath="..\src\internedsymbols_unittest\CExports_Test.cpp"
 			>
 		</File>
 	</Files>
