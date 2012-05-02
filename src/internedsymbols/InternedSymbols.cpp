@@ -12,7 +12,7 @@
 #define BOOST_DATE_TIME_NO_LIB
 
 
-#include "internedsymbols/InternedSymbols_API.h"
+#include "internedsymbols/CExports.h"
 #include "atomic.hpp"
 
 #include <cstring>

@@ -1,7 +1,7 @@
 
 #include <string>
 
-#include "internedsymbols/InternedSymbols_API.h"
+#include "internedsymbols/CExports.h"
 
 
 template<int N>
