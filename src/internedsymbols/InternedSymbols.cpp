@@ -334,6 +334,20 @@ uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLength(
 }
 
 //---------------------------------------------------------------------------------------
+int32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_Compare( InternHandle_t const lhs,
+                                                       InternHandle_t const rhs )
+{
+    if( lhs == rhs )
+        return 0;
+    else
+    {
+        wchar_t const * const pLeft  = (lhs ? lhs->m_name : 0);
+        wchar_t const * const pRight = (rhs ? rhs->m_name : 0);
+        return wcscmp( pLeft, pRight );
+    }
+}
+
+//---------------------------------------------------------------------------------------
 void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToA(
     InternHandle_t const handle,
     char * const buf,
