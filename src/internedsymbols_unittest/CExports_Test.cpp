@@ -39,10 +39,13 @@ class CPPUNIT_TEST_NAME : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( CPPUNIT_TEST_NAME );
         CPPUNIT_TEST( testOtherDLL );
         CPPUNIT_TEST( testSharedSymbols );
+        CPPUNIT_TEST( testNullTerminator );
         CPPUNIT_TEST( testCaseSensitivity );
         CPPUNIT_TEST( testResolve );
         CPPUNIT_TEST( testResolveLen );
         CPPUNIT_TEST( testResolveCallback );
+        CPPUNIT_TEST( testGetLength );
+        CPPUNIT_TEST( testCompare );
         CPPUNIT_TEST( testNoncontentiousSpeed );
         CPPUNIT_TEST( testManyNames );
         CPPUNIT_TEST( testStringEncoding );
@@ -86,6 +89,27 @@ public:
         InternHandle_t const newSym2_again = GetHandle( L"newSym2" );
         CPPUNIT_ASSERT( 0 != newSym2_again );
         CPPUNIT_ASSERT( newSym2 == newSym2_again );
+    }
+
+    void testNullTerminator( )
+    {
+        InternHandle_t const len5Null = GetHandle( L"12345" );
+        InternHandle_t const len5NoNull = InternedSymbol_AcquireHandleW( L"12345x", 5 );
+        InternHandle_t const embeddedNull = GetHandle( L"yyyy\x0000yyyy" );
+
+        CPPUNIT_ASSERT( 0 != len5Null   );
+        CPPUNIT_ASSERT( 0 != len5NoNull );
+        CPPUNIT_ASSERT( len5Null == len5NoNull );
+
+        CPPUNIT_ASSERT( 5 == InternedSymbol_GetLength( len5Null ) );
+        CPPUNIT_ASSERT( 5 == InternedSymbol_GetLength( len5NoNull ) );
+
+        CPPUNIT_ASSERT( 0 != embeddedNull );
+        CPPUNIT_ASSERT( 9 == InternedSymbol_GetLength( embeddedNull ) );
+
+        InternedSymbol_ReleaseHandle( len5Null );
+        InternedSymbol_ReleaseHandle( len5NoNull );
+        InternedSymbol_ReleaseHandle( embeddedNull );
     }
 
     void testCaseSensitivity( )
@@ -156,6 +180,76 @@ public:
         CPPUNIT_ASSERT( 0 == buffer[1 - 1] );
     }
 
+    void testGetLength( )
+    {
+        enum { BUF_LEN = 1024 };
+        wchar_t buffer[BUF_LEN+1];
+        for( unsigned int i = 0; i < BUF_LEN; ++i )
+            buffer[ i ] = L'x';
+        buffer[ BUF_LEN ] = 0;
+
+        InternHandle_t const null      = 0;
+        InternHandle_t const empty     = GetHandle( L"" );
+        InternHandle_t const len1      = GetHandle( L"1" );
+        InternHandle_t const len10     = GetHandle( L"123456789A" );
+        InternHandle_t const len256    = InternedSymbol_AcquireHandleW( buffer, 256 );
+        InternHandle_t const lenBufLen = InternedSymbol_AcquireHandleW( buffer, BUF_LEN );
+
+        CPPUNIT_ASSERT(       0 == InternedSymbol_GetLength( null   ) );
+        CPPUNIT_ASSERT(       0 == InternedSymbol_GetLength( empty  ) );
+        CPPUNIT_ASSERT(       1 == InternedSymbol_GetLength( len1   ) );
+        CPPUNIT_ASSERT(      10 == InternedSymbol_GetLength( len10  ) );
+        CPPUNIT_ASSERT(     256 == InternedSymbol_GetLength( len256 ) );
+        CPPUNIT_ASSERT( BUF_LEN == InternedSymbol_GetLength( lenBufLen ) );
+
+        InternedSymbol_ReleaseHandle( null );
+        InternedSymbol_ReleaseHandle( empty );
+        InternedSymbol_ReleaseHandle( len1 );
+        InternedSymbol_ReleaseHandle( len10 );
+        InternedSymbol_ReleaseHandle( len256 );
+        InternedSymbol_ReleaseHandle( lenBufLen );
+    }
+
+    void testCompare( )
+    {
+        InternHandle_t const handleA  = GetHandle( L"aFoo" );
+        InternHandle_t const handleB  = GetHandle( L"bFoo" );
+        InternHandle_t const handleB2 = GetHandle( L"bFoo" );
+        InternHandle_t const handleC  = GetHandle( L"cFoo" );
+
+        CPPUNIT_ASSERT( 0 != handleA );
+        CPPUNIT_ASSERT( 0 != handleB );
+        CPPUNIT_ASSERT( 0 != handleB2 );
+        CPPUNIT_ASSERT( 0 != handleC );
+
+        CPPUNIT_ASSERT( handleA  != handleB  );
+        CPPUNIT_ASSERT( handleA  != handleB2 );
+        CPPUNIT_ASSERT( handleA  != handleC  );
+        CPPUNIT_ASSERT( handleB  == handleB2 );
+        CPPUNIT_ASSERT( handleB  != handleC  );
+        CPPUNIT_ASSERT( handleB2 != handleC  );
+
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleA,  handleA  ) == 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleB,  handleB  ) == 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleB2, handleB2 ) == 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleC,  handleC  ) == 0 );
+
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleA,  handleB  ) < 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleA,  handleB2 ) < 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleA,  handleC  ) < 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleB,  handleC  ) < 0 );
+
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleB,  handleA  ) > 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleB2, handleA  ) > 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleC,  handleA  ) > 0 );
+        CPPUNIT_ASSERT( InternedSymbol_Compare( handleC,  handleB  ) > 0 );
+
+        InternedSymbol_ReleaseHandle( handleA  );
+        InternedSymbol_ReleaseHandle( handleB  );
+        InternedSymbol_ReleaseHandle( handleB2 );
+        InternedSymbol_ReleaseHandle( handleC  );
+    }
+
     void testResolveCallback( )
     {
         wchar_t const symbolName[] = L"symbolName";
@@ -204,7 +298,7 @@ public:
         };
 
         clock_t const startTime = clock( );
-        enum { NUM_ROUND = 10000 };
+        enum { NUM_ROUND = 1000 };
         for( unsigned int round = 0; round < NUM_ROUND; ++round )
         {
             for( unsigned int iName = 0; iName < 100; ++iName )
