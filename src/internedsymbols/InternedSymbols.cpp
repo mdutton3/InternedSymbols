@@ -123,7 +123,7 @@ static inline void foreach_mbc( char const * mbstr, uint32_t mblen, FUNC & fn )
     while(mblen > 0)
     {
         int const ret = mbrtowc( &wc, mbstr, mblen, &state );
-        if( ret <= 0 )
+        if( ret < 0 )
             break;
         fn( wc );
         mbstr += ret;
