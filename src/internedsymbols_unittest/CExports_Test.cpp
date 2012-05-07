@@ -129,9 +129,8 @@ public:
 
         enum { BUF_LEN = 100 };
         wchar_t buffer[BUF_LEN];
-        unsigned int len = BUF_LEN;
 
-        InternedSymbol_CopyToW( handle, buffer, &len );
+        int const len = InternedSymbol_CopyToW( handle, buffer, BUF_LEN );
         CPPUNIT_ASSERT( StrLength(str) == len );
         CPPUNIT_ASSERT( 0 == buffer[len] );
         CPPUNIT_ASSERT( wcscmp( str, buffer ) == 0 );
@@ -152,30 +151,25 @@ public:
 
         enum { BUF_LEN = 100 };
         wchar_t buffer[BUF_LEN];
-        unsigned int len = BUF_LEN;
+        int len = 0;
 
-        len = BUF_LEN;
-        InternedSymbol_CopyToW( handle, buffer, &len );
+        len = InternedSymbol_CopyToW( handle, buffer, BUF_LEN );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen] );
 
-        len = nameLen;
-        InternedSymbol_CopyToW( handle, buffer, &len );
+        len = InternedSymbol_CopyToW( handle, buffer, nameLen );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen - 1] );
 
-        len = nameLen - 1;
-        InternedSymbol_CopyToW( handle, buffer, &len );
+        len = InternedSymbol_CopyToW( handle, buffer, nameLen - 1 );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen - 1 - 1] );
 
-        len = nameLen - 2;
-        InternedSymbol_CopyToW( handle, buffer, &len );
+        len = InternedSymbol_CopyToW( handle, buffer, nameLen - 2 );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[nameLen - 2 - 1] );
 
-        len = 1;
-        InternedSymbol_CopyToW( handle, buffer, &len );
+        len = InternedSymbol_CopyToW( handle, buffer, 1 );
         CPPUNIT_ASSERT( nameLen == len );
         CPPUNIT_ASSERT( 0 == buffer[1 - 1] );
     }
@@ -406,16 +400,15 @@ public:
         CPPUNIT_ASSERT( 0 != handle1 );
         CPPUNIT_ASSERT( 0 != handle2 );
         CPPUNIT_ASSERT( handle1 == handle2 );
-        uint32_t len;
 
-        InternedSymbol_CopyToA( handle1, mbbuf, &(len = 100) );
+        InternedSymbol_CopyToA( handle1, mbbuf, 100 );
         CPPUNIT_ASSERT( 0 == strncmp( mbliteral, mbbuf, 100 ) );
-        InternedSymbol_CopyToW( handle1, wcbuf, &(len = 100) );
+        InternedSymbol_CopyToW( handle1, wcbuf, 100 );
         CPPUNIT_ASSERT( 0 == wcsncmp( wcliteral, wcbuf, 100 ) );
 
-        InternedSymbol_CopyToA( handle2, mbbuf, &(len = 100) );
+        InternedSymbol_CopyToA( handle2, mbbuf, 100 );
         CPPUNIT_ASSERT( 0 == strncmp( mbliteral, mbbuf, 100 ) );
-        InternedSymbol_CopyToW( handle2, wcbuf, &(len = 100) );
+        InternedSymbol_CopyToW( handle2, wcbuf, 100 );
         CPPUNIT_ASSERT( 0 == wcsncmp( wcliteral, wcbuf, 100 ) );
 
 

@@ -367,42 +367,49 @@ int32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_Compare( InternHandle_t const lhs,
 }
 
 //---------------------------------------------------------------------------------------
-void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToA(
+int32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToA(
     InternHandle_t const handle,
     char * const buf,
-    uint32_t * len )
+    int32_t const len )
 {
     using namespace std;
     InternedSymbol const * const pSymbol = handle;
-    if( pSymbol && (len > 0) )
+    if( pSymbol == 0 )
+        return 0;
+
+    size_t const req_len = wcstombs( NULL, pSymbol->m_name, 0 );
+    if( len > 0 )
     {
-        size_t const req_len = wcstombs( NULL, pSymbol->m_name, *len );
-        size_t const min_len = min( size_t(*len), req_len );
+        size_t const min_len = min( size_t(len), req_len );
         size_t const ret = wcstombs( buf, pSymbol->m_name, min_len );
         // Ensure NULL termination
         if( size_t(-1) == ret )
             buf[0] = 0;
         else
-            buf[ min( ret, size_t(*len - 1) ) ] = 0;
-        *len = req_len;
+            buf[ min( ret, size_t(len - 1) ) ] = 0;
     }
+    return req_len;
 }
 
 //---------------------------------------------------------------------------------------
-void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToW(
+int32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToW(
     InternHandle_t const handle,
     wchar_t * const buf,
-    uint32_t * len )
+    int32_t const len )
 {
     using namespace std;
     InternedSymbol const * const pSymbol = handle;
-    if( pSymbol )
+    if( pSymbol == 0 )
+        return 0;
+
+    if( len > 0 )
     {
-        uint32_t const maxLen = min(*len,pSymbol->m_length+1);
-        wcsncpy( buf, pSymbol->m_name, maxLen );
-        buf[*len-1] = 0;
-        *len = pSymbol->m_length;
+        uint32_t const maxLen = min( uint32_t(len), pSymbol->m_length+1 );
+        wmemcpy( buf, pSymbol->m_name, maxLen );
+        buf[len-1] = 0;
     }
+
+    return pSymbol->m_length;
 }
 
 //---------------------------------------------------------------------------------------
