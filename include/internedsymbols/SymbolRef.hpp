@@ -160,12 +160,25 @@ namespace InternedSymbols
 
         size_t length( ) const { return InternedSymbol_GetLengthW( m_handle ); }
 
-        //std::string   str( ) const
-        //{
-        //    std::wstringstream wss;
-        //    wss << wstr();
-        //    return wss.str();
-        //}
+        std::string str( ) const
+        {
+            enum { BUF_LEN = 1024 };
+            char staticBuffer[BUF_LEN];
+            std::vector<char> dynamicBuffer;
+
+            unsigned int const lenBytes = InternedSymbol_GetLengthA( m_handle );
+
+            char * buffer = staticBuffer;
+            if( lenBytes >= BUF_LEN )
+            {
+                dynamicBuffer.resize( lenBytes + 1 );
+                buffer = &dynamicBuffer[0];
+            }
+
+            uint32_t const actualLen = InternedSymbol_CopyToA( m_handle, buffer, lenBytes );
+
+            return std::string( buffer, buffer + actualLen );
+        }
 
         std::wstring wstr( ) const
         {
