@@ -83,10 +83,16 @@ extern "C" {
     typedef void (INTERNEDSYMBOLS_API InternedSymbol_ReleaseHandle_type) (
         InternHandle_t const handle );
 
+    //! @brief Get the length, in bytes, of the symbol name
+    //! @param[in] handle A valid handle to a symbol
+    //! @return The length of the symbol name, in bytes, excluding the NULL terminator
+    typedef uint32_t (INTERNEDSYMBOLS_API InternedSymbol_GetLengthA_type) (
+        InternHandle_t const handle );
+
     //! @brief Get the length, in wide characters, of the symbol name
     //! @param[in] handle A valid handle to a symbol
     //! @return The length of the symbol name, in wide characters, excluding the NULL terminator
-    typedef uint32_t (INTERNEDSYMBOLS_API InternedSymbol_GetLength_type) (
+    typedef uint32_t (INTERNEDSYMBOLS_API InternedSymbol_GetLengthW_type) (
         InternHandle_t const handle );
 
     //! @brief Compare the names of the two symbols, lexographically

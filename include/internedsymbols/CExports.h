@@ -21,7 +21,8 @@ extern "C" {
 
         INTERNEDSYMBOLS_EXPORTFN( InternedSymbol_ReleaseHandle );
 
-        INTERNEDSYMBOLS_EXPORTFN( InternedSymbol_GetLength );
+        INTERNEDSYMBOLS_EXPORTFN( InternedSymbol_GetLengthA );
+        INTERNEDSYMBOLS_EXPORTFN( InternedSymbol_GetLengthW );
 
         INTERNEDSYMBOLS_EXPORTFN( InternedSymbol_Compare );
 

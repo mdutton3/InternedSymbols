@@ -101,11 +101,11 @@ public:
         CPPUNIT_ASSERT( 0 != len5NoNull );
         CPPUNIT_ASSERT( len5Null == len5NoNull );
 
-        CPPUNIT_ASSERT( 5 == InternedSymbol_GetLength( len5Null ) );
-        CPPUNIT_ASSERT( 5 == InternedSymbol_GetLength( len5NoNull ) );
+        CPPUNIT_ASSERT( 5 == InternedSymbol_GetLengthW( len5Null ) );
+        CPPUNIT_ASSERT( 5 == InternedSymbol_GetLengthW( len5NoNull ) );
 
         CPPUNIT_ASSERT( 0 != embeddedNull );
-        CPPUNIT_ASSERT( 9 == InternedSymbol_GetLength( embeddedNull ) );
+        CPPUNIT_ASSERT( 9 == InternedSymbol_GetLengthW( embeddedNull ) );
 
         InternedSymbol_ReleaseHandle( len5Null );
         InternedSymbol_ReleaseHandle( len5NoNull );
@@ -189,12 +189,12 @@ public:
         InternHandle_t const len256    = InternedSymbol_AcquireHandleW( buffer, 256 );
         InternHandle_t const lenBufLen = InternedSymbol_AcquireHandleW( buffer, BUF_LEN );
 
-        CPPUNIT_ASSERT(       0 == InternedSymbol_GetLength( null   ) );
-        CPPUNIT_ASSERT(       0 == InternedSymbol_GetLength( empty  ) );
-        CPPUNIT_ASSERT(       1 == InternedSymbol_GetLength( len1   ) );
-        CPPUNIT_ASSERT(      10 == InternedSymbol_GetLength( len10  ) );
-        CPPUNIT_ASSERT(     256 == InternedSymbol_GetLength( len256 ) );
-        CPPUNIT_ASSERT( BUF_LEN == InternedSymbol_GetLength( lenBufLen ) );
+        CPPUNIT_ASSERT(       0 == InternedSymbol_GetLengthW( null   ) );
+        CPPUNIT_ASSERT(       0 == InternedSymbol_GetLengthW( empty  ) );
+        CPPUNIT_ASSERT(       1 == InternedSymbol_GetLengthW( len1   ) );
+        CPPUNIT_ASSERT(      10 == InternedSymbol_GetLengthW( len10  ) );
+        CPPUNIT_ASSERT(     256 == InternedSymbol_GetLengthW( len256 ) );
+        CPPUNIT_ASSERT( BUF_LEN == InternedSymbol_GetLengthW( lenBufLen ) );
 
         InternedSymbol_ReleaseHandle( null );
         InternedSymbol_ReleaseHandle( empty );

@@ -158,7 +158,7 @@ namespace InternedSymbols
 
         bool empty( ) const { return (m_handle == Empty().m_handle); }
 
-        size_t length( ) const { return InternedSymbol_GetLength( m_handle ); }
+        size_t length( ) const { return InternedSymbol_GetLengthW( m_handle ); }
 
         //std::string   str( ) const
         //{
