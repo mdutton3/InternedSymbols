@@ -65,8 +65,22 @@ namespace InternedSymbols
         InternHandle_t m_handle;
 
         //-------------------------------------------------------------------------------
-        // Internal utility methods
+        // type tags for restricting to valid types
+
         template<typename T> struct type_tag : public details::traits<T>::tag { };
+
+        template<typename T, typename U, typename X> struct enable_if_tag_base;
+        template<typename T, typename U>
+        struct enable_if_tag_base< T,U,type_tag<T> >
+        {
+            typedef typename U type;
+        };
+
+        template<typename T, typename U>
+        struct enable_if_tag : enable_if_tag_base< T,U,type_tag<T> > { };
+
+        //-------------------------------------------------------------------------------
+        // Internal utility methods
 
         template<typename T>
         static InternHandle_t acquire( T str, type_tag<T> const & _t = type_tag<T>() )
@@ -132,6 +146,10 @@ namespace InternedSymbols
             : m_handle( clone( rhs.m_handle ) )
         {   }
 
+        Symbol( InternHandle_t const & handle )
+            : m_handle( clone( handle ) )
+        {   }
+
         template<typename T>
         Symbol( T str, type_tag<T> const & _t = type_tag<T>() )
             : m_handle( acquire( str ) )
@@ -154,7 +172,7 @@ namespace InternedSymbols
         //-------------------------------------------------------------------------------
         // Query
 
-        bool valid( ) const { return (m_handle != 0); }
+        InternHandle_t handle( ) const { return m_handle; }
 
         bool empty( ) const { return (m_handle == Empty().m_handle); }
 
@@ -237,15 +255,20 @@ namespace InternedSymbols
             return *this;
         }
 
+        Symbol & operator=( InternHandle_t const & rhs )
+        {
+            if( m_handle != rhs )
+                set( clone( rhs ) );
+            return *this;
+        }
+
         template<typename T>
-        Symbol & operator=( typename details::traits<T>::type const & str )
+        typename enable_if_tag<T,Symbol>::type & operator=( T str )
         {
             set( acquire( str ) );
             return *this;
         }
     };
-
-    namespace { static Symbol const s_EMPTY_STRING( L"" ); }
 }
 
 #endif // HEADER_GUARD__INTERNEDSYMBOLS_SYMBOLREF_HPP_34980708974
