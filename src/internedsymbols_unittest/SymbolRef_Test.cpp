@@ -17,6 +17,9 @@ class CPPUNIT_TEST_NAME : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( CPPUNIT_TEST_NAME );
         CPPUNIT_TEST( testConstructors );
+        CPPUNIT_TEST( testEmptyInstance );
+        CPPUNIT_TEST( testEmptyQuery );
+        CPPUNIT_TEST( testLength );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -76,6 +79,49 @@ public:
         CPPUNIT_ASSERT( wcstr == copy_wchar );
     }
 
+    void testEmptyInstance( )
+    {
+        CPPUNIT_ASSERT( &Symbol::Empty() == &Symbol::Empty() );
+
+        CPPUNIT_ASSERT( 0 != Symbol::Empty( ).handle( ) );
+        CPPUNIT_ASSERT( 0 == InternedSymbol_GetLengthW( Symbol::Empty().handle() ) );
+        CPPUNIT_ASSERT( 0 == Symbol::Empty().length() );
+        CPPUNIT_ASSERT( Symbol::Empty().empty() );
+
+        CPPUNIT_ASSERT( Symbol::Empty() == Symbol() );
+        CPPUNIT_ASSERT( Symbol::Empty() == Symbol("") );
+        CPPUNIT_ASSERT( Symbol::Empty() == Symbol(L"") );
+        CPPUNIT_ASSERT( Symbol::Empty() != Symbol("NotEmpty") );
+    }
+
+    void testEmptyQuery( )
+    {
+        CPPUNIT_ASSERT( Symbol::Empty().empty() );
+        CPPUNIT_ASSERT( Symbol().empty() );
+        CPPUNIT_ASSERT( Symbol("").empty() );
+        CPPUNIT_ASSERT( Symbol(L"").empty() );
+        CPPUNIT_ASSERT( Symbol( std::string() ).empty() );
+        CPPUNIT_ASSERT( Symbol( std::wstring() ).empty() );
+
+        CPPUNIT_ASSERT( ! Symbol("NotEmpty").empty() );
+
+        CPPUNIT_ASSERT( ! Symbol("\x00InnerNull", 10).empty() );
+    }
+
+    void testLength( )
+    {
+        CPPUNIT_ASSERT(  0 == Symbol::Empty().length() );
+        CPPUNIT_ASSERT(  0 == Symbol().length() );
+        CPPUNIT_ASSERT(  0 == Symbol("").length() );
+        CPPUNIT_ASSERT(  0 == Symbol(L"").length() );
+        CPPUNIT_ASSERT(  0 == Symbol( std::string() ).length() );
+        CPPUNIT_ASSERT(  0 == Symbol( std::wstring() ).length() );
+
+        CPPUNIT_ASSERT(  1 == Symbol("1").length() );
+        CPPUNIT_ASSERT(  6 == Symbol("FooBar").length() );
+
+        CPPUNIT_ASSERT( 10 == Symbol("\x00InnerNull", 10).length() );
+    }
 };
 
 // Registers the fixture into the 'registry'

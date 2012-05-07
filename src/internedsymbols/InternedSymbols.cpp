@@ -280,18 +280,6 @@ InternHandle_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_AcquireHandleA(
     char const * const str,
     uint32_t const len )
 {
-//    enum { BUF_SIZE = 256 };
-//
-//    size_t const mbLen = mbrlen()
-//    if( len <= MAX_LEN )
-//    {
-//        wchar_t wbuffer[BUF_SIZE];
-//        size_t const ret = mbstowcs( wbuffer, str, BUF_SIZE );
-//        if( size_t(-1) == ret )
-//            return 0;
-//        else if( )
-//            return InternedSymbol_AcquireHandleW( wbuffer, ret );
-//    }
     return SymbolStore::Instance( ).acquireHandle( str, len );
 }
 
