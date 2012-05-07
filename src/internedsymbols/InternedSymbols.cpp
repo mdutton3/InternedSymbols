@@ -329,7 +329,24 @@ void INTERNEDSYMBOLS_DLLAPI InternedSymbol_ReleaseHandle(
 }
 
 //---------------------------------------------------------------------------------------
-uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLength(
+uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLengthA(
+    InternHandle_t const handle )
+{
+    uint32_t ret = 0;
+
+    InternedSymbol const * const pSymbol = handle;
+    if( pSymbol )
+    {
+        size_t const len = wcstombs( NULL, pSymbol->m_name, 0 );
+        if (len >= 0)
+            ret = uint32_t(len);
+    }
+
+    return ret;
+}
+
+//---------------------------------------------------------------------------------------
+uint32_t INTERNEDSYMBOLS_DLLAPI InternedSymbol_GetLengthW(
     InternHandle_t const handle )
 {
     InternedSymbol const * const pSymbol = handle;
