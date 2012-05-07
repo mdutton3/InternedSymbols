@@ -104,10 +104,10 @@ extern "C" {
     //! @param[out] buf An output buffer to hold the copied name
     //! @param[in,out] len (in) The maximum buffer length, in (multibyte) characters.
     //! @param[in,out] len (out) The actual length of the name copied, may be larger than the original buffer length
-    typedef void (INTERNEDSYMBOLS_API InternedSymbol_CopyToA_type) (
+    typedef int32_t (INTERNEDSYMBOLS_API InternedSymbol_CopyToA_type) (
         InternHandle_t const handle,
         char * const buf,
-        uint32_t * len );
+        int32_t const len );
 
 
     //! @brief Copy the Unicode name of the interned symbol to the buffer
@@ -116,10 +116,10 @@ extern "C" {
     //! @param[out] buf An output buffer to hold the copied name
     //! @param[in,out] len (in) The maximum buffer length, in characters.
     //! @param[in,out] len (out) The actual length of the name, in characters.
-    typedef void (INTERNEDSYMBOLS_API InternedSymbol_CopyToW_type) (
+    typedef int32_t (INTERNEDSYMBOLS_API InternedSymbol_CopyToW_type) (
         InternHandle_t const handle,
         wchar_t * const buf,
-        uint32_t * len );
+        int32_t const len );
 
 
     //! @brief Type of callback function for string setter callback
