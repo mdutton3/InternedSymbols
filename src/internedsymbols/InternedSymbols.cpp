@@ -26,6 +26,12 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered_map.hpp>
 
+// Windows headers were included somewhere along the way
+// causing stupid namespace collisions
+#ifdef min
+#undef min
+#undef max
+#endif
 
 typedef std::size_t HashVal;
 
@@ -377,7 +383,7 @@ void INTERNEDSYMBOLS_DLLAPI InternedSymbol_CopyToA(
         if( size_t(-1) == ret )
             buf[0] = 0;
         else
-            buf[ min( ret, *len - 1 ) ] = 0;
+            buf[ min( ret, size_t(*len - 1) ) ] = 0;
         *len = req_len;
     }
 }
