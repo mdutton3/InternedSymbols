@@ -47,8 +47,9 @@ class CPPUNIT_TEST_NAME : public CppUnit::TestFixture
         CPPUNIT_TEST( testGetLength );
         CPPUNIT_TEST( testCompare );
         CPPUNIT_TEST( testNoncontentiousSpeed );
-        CPPUNIT_TEST( testManyNames );
+        //CPPUNIT_TEST( testManyNames );
         CPPUNIT_TEST( testStringEncoding );
+        CPPUNIT_TEST( testStackOpt );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -339,7 +340,6 @@ public:
 
     void testManyNames_duplicate( )
     {
-        int count = 0;
         for( int count = 0; count < 100000; ++count )
         {
             InternHandle_t const handle = manyNames_handles[count];
@@ -349,7 +349,6 @@ public:
 
     void testManyNames_release( )
     {
-        int count = 0;
         for( int count = 0; count < 100000; ++count )
         {
             InternHandle_t const handle = manyNames_handles[count];
@@ -423,6 +422,47 @@ public:
             CPPUNIT_ASSERT( 0 != escape2 );
             CPPUNIT_ASSERT( escape1 == escape2 );
         }
+    }
+
+    double testStackOpt_helper( char const * const str, int len )
+    {
+        InternHandle_t handle = InternedSymbol_AcquireHandleA( str, len );
+
+        clock_t const startTime = clock( );
+        {
+            for( int count = 0; count < 10000; ++count )
+            {
+                InternedSymbol_AcquireHandleA(str, len);
+                //InternHandle_t const handle = InternedSymbol_AcquireHandleA(str, len);
+                //InternedSymbol_ReleaseHandle( handle );
+            }
+        }
+        clock_t const endTime = clock( );
+        clock_t const delta = endTime - startTime;
+        double const ms = delta * 1000.0 / CLOCKS_PER_SEC;
+
+        for( int count = 0; count < 10000; ++count )
+            InternedSymbol_ReleaseHandle( handle );
+
+        InternedSymbol_ReleaseHandle( handle );
+
+        return ms;
+    }
+
+    void testStackOpt( )
+    {
+        // 120 char string
+        char testStr[514];
+        for( int i = 0; i < 514; ++i )
+            testStr[i] = '0' + (i % 10);
+        testStr[514 - 1] = 0;
+        double const msShort = testStackOpt_helper( testStr, 512 );
+        double const msLong  = testStackOpt_helper( testStr, 513 );
+
+        std::wcout << std::endl;
+        std::wcout << L"It took " << msShort << L" ms to acquire/release 10000 short names" << std::endl;
+        std::wcout << L"It took " << msLong  << L" ms to acquire/release 10000 long names" << std::endl;
+        std::wcout << L"Ratio:  " << (msShort / msLong) << std::endl;
     }
 };
 

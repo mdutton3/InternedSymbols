@@ -172,13 +172,21 @@ static inline void foreach_mbc( char const * mbstr, uint32_t mblen, FUNC & fn )
     } // while(mblen > 0)
 }
 
-// Functor for accumulating the length and hashcode of a wide string
-struct WSLenHashAccum
+// Functor for accumulating a wide string and its hash code
+template<int LEN>
+struct WSBufHashAccum
 {
+    enum { MAX_LEN = LEN };
+    wchar_t buffer[ MAX_LEN ];
     unsigned int wlen;
     HashVal seed;
-    void operator()( wchar_t const wc )
+
+    WSBufHashAccum( ) : wlen(0), seed() { }
+
+    inline void operator()( wchar_t const wc )
     {
+        if( wlen < MAX_LEN )
+            buffer[wlen] = wc;
         ++wlen;
         boost::hash_combine(seed, wc);
     }
@@ -188,7 +196,7 @@ struct WSLenHashAccum
 struct WSBufAppender
 {
     wchar_t * wstr;
-    void operator()( wchar_t const wc )
+    inline void operator()( wchar_t const wc )
     {
         *wstr = wc;
         ++wstr;
@@ -246,14 +254,22 @@ public:
         // We have to compute the length manually ahead of time
         // because str may not be NULL terminated and all the ANSI
         // string conversion methods expect it to be.
-        WSLenHashAccum mbstr_accum = { 0 };
+        // We cache the string as we convert to prevent re-converting later, if it fits.
+        typedef WSBufHashAccum<512> BufferAccum;
+        BufferAccum mbstr_accum;
         foreach_mbc( str, len, mbstr_accum );
 
         // Convienent aliases
         HashVal const nameHash = mbstr_accum.seed;
         unsigned int const wcLen = mbstr_accum.wlen;
 
-        // We create this earlier here because we'll use it as a buffer
+        // We converted the string as we computed the hash and it fit, just use it
+        if( wcLen <= BufferAccum::MAX_LEN )
+        {
+            return acquireHandle( mbstr_accum.buffer, wcLen, nameHash );
+        }
+
+        // We create this early here because we'll use it as a buffer
         std::auto_ptr<InternedSymbol> pTemp( InternedSymbol::create( wcLen, nameHash ) );
         wchar_t const * pNameBuf = pTemp->m_name;
 
@@ -277,10 +293,16 @@ public:
     }
 
     InternedSymbol const * acquireHandle( wchar_t const * const str,
-                                    uint32_t const len )
+                                          uint32_t const len )
     {
         HashVal const nameHash = InternedSymbol::hash( str, len );
+        return acquireHandle( str, len, nameHash );
+    }
 
+    InternedSymbol const * acquireHandle( wchar_t const * const str,
+                                          uint32_t const len,
+                                          HashVal const nameHash )
+    {
         Lock::scoped_lock scopedLock( m_symbolLock );
         SymbolBucket & bucket = m_hashMap[ nameHash ];
 
