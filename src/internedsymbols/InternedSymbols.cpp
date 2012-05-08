@@ -125,10 +125,51 @@ static inline void foreach_mbc( char const * mbstr, uint32_t mblen, FUNC & fn )
         int const ret = mbrtowc( &wc, mbstr, mblen, &state );
         if( ret < 0 )
             break;
+
         fn( wc );
-        mbstr += ret;
-        mblen -= ret;
-    }
+
+        // mbrtowc returns 0 when *mbstr is the NULL terminator
+        // but we still need to skip over the NULL terminator.
+        if( ret != 0 )
+        {
+            mbstr += ret;
+            mblen -= ret;
+        }
+        else
+        {
+            // As a MBCS could be using any encoding, it seems plausible
+            // that the MBCS NULL terminator is larger than one byte
+            // in some encodings.
+            //
+            // The fact that strlen et al. are compatible with MBCS
+            // suggests that the NULL terminator is simply just 0x00.
+            //
+            // C99, Section 7.20.7.3 "The wctomb function" states:
+            // "If wc is a null wide character, a null byte is stored,
+            //  preceded by any shift sequence needed to restore the
+            //  initial shift state"
+            // This suggests that multiple MBCS bytes could be decoded
+            // to produce the wide-char NULL but the final byte should
+            // be 0x00.
+            while( mblen > 0 && *mbstr != 0 ) // Skip shift sequence
+            {
+                ++mbstr;
+                --mblen;
+            }
+            if( mblen > 0 && *mbstr == 0 ) // Skip NULL terminator
+            {
+                ++mbstr;
+                --mblen;
+
+                // The documentation says that the new state is the
+                // "initial conversion state" but its ambiguous (to me)
+                // whether that means zero-initialized or the state
+                // before the call. We reset explicitly here to be sure.
+                mbstate_t newState = {0};
+                state = newState;
+            }
+        }
+    } // while(mblen > 0)
 }
 
 // Functor for accumulating the length and hashcode of a wide string
