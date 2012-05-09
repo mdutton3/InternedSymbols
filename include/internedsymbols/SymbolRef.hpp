@@ -54,7 +54,7 @@ namespace InternedSymbols
         template<> struct traits< std::wstring >    : public base_traits< std::wstring > { };
     }
 
-    struct Symbol
+    struct SymbolRef
     {
     private:
         //-------------------------------------------------------------------------------
@@ -130,40 +130,40 @@ namespace InternedSymbols
         //-------------------------------------------------------------------------------
         // Constructor/Destructor
 
-        static Symbol const & Empty( )
+        static SymbolRef const & Empty( )
         {
-            static Symbol const s_empty( "", 0 );
+            static SymbolRef const s_empty( "", 0 );
             return s_empty;
         }
 
 
-        Symbol( )
+        SymbolRef( )
             : m_handle( clone( Empty().m_handle ) )
         {
         }
 
-        Symbol( Symbol const & rhs )
+        SymbolRef( SymbolRef const & rhs )
             : m_handle( clone( rhs.m_handle ) )
         {   }
 
-        Symbol( InternHandle_t const & handle )
+        SymbolRef( InternHandle_t const & handle )
             : m_handle( clone( handle ) )
         {   }
 
         template<typename T>
-        Symbol( T str, type_tag<T> const & _t = type_tag<T>() )
+        SymbolRef( T str, type_tag<T> const & _t = type_tag<T>() )
             : m_handle( acquire( str ) )
         {   }
 
         template<typename T>
-        Symbol( T str,
+        SymbolRef( T str,
                 unsigned int len,
                 type_tag<T> const & _t = type_tag<T>() )
             : m_handle( acquire( str, len ) )
         {   }
 
 
-        ~Symbol( )
+        ~SymbolRef( )
         {
             release( m_handle );
         }
@@ -223,17 +223,17 @@ namespace InternedSymbols
 
         //-------------------------------------------------------------------------------
         // Compare
-        int compare( Symbol const & rhs ) const
+        int compare( SymbolRef const & rhs ) const
         {
             return InternedSymbol_Compare( m_handle, rhs.m_handle );
         }
 
-        bool operator==( Symbol const & rhs ) const { return (m_handle == rhs.m_handle); }
-        bool operator!=( Symbol const & rhs ) const { return (m_handle != rhs.m_handle); }
-        bool operator< ( Symbol const & rhs ) const { return (compare( rhs ) <  0); }
-        bool operator<=( Symbol const & rhs ) const { return (compare( rhs ) <= 0); }
-        bool operator> ( Symbol const & rhs ) const { return (compare( rhs ) >  0); }
-        bool operator>=( Symbol const & rhs ) const { return (compare( rhs ) >= 0); }
+        bool operator==( SymbolRef const & rhs ) const { return (m_handle == rhs.m_handle); }
+        bool operator!=( SymbolRef const & rhs ) const { return (m_handle != rhs.m_handle); }
+        bool operator< ( SymbolRef const & rhs ) const { return (compare( rhs ) <  0); }
+        bool operator<=( SymbolRef const & rhs ) const { return (compare( rhs ) <= 0); }
+        bool operator> ( SymbolRef const & rhs ) const { return (compare( rhs ) >  0); }
+        bool operator>=( SymbolRef const & rhs ) const { return (compare( rhs ) >= 0); }
 
         //-------------------------------------------------------------------------------
         // Modification
@@ -248,14 +248,14 @@ namespace InternedSymbols
             set( 0 );
         }
 
-        Symbol & operator=( Symbol const & rhs )
+        SymbolRef & operator=( SymbolRef const & rhs )
         {
             if( m_handle != rhs.m_handle )
                 set( clone( rhs.m_handle ) );
             return *this;
         }
 
-        Symbol & operator=( InternHandle_t const & rhs )
+        SymbolRef & operator=( InternHandle_t const & rhs )
         {
             if( m_handle != rhs )
                 set( clone( rhs ) );
@@ -263,7 +263,7 @@ namespace InternedSymbols
         }
 
         template<typename T>
-        typename enable_if_tag<T,Symbol>::type & operator=( T str )
+        typename enable_if_tag<T,SymbolRef>::type & operator=( T str )
         {
             set( acquire( str ) );
             return *this;

@@ -30,23 +30,23 @@ public:
     void testConstructors( )
     {
         // Exercise each constructor to catch compile errors
-        Symbol const empty;
-        Symbol const cstr    (  "char-string" );
-        Symbol const cstrlen (  "char-string~~~", 11 );
-        Symbol const wcstr   ( L"wchar-string" );
-        Symbol const wcstrlen( L"wchar-string~~~", 12 );
-        Symbol const str     ( std::string(  "char-string") );
-        Symbol const strlen  ( std::string(  "char-string~~~"), 11 );
-        Symbol const wstr    ( std::wstring(L"wchar-string") );
-        Symbol const wstrlen ( std::wstring(L"wchar-string~~~"), 12 );
-        Symbol const copy_empty( empty );
-        Symbol const copy_char ( cstr  );
-        Symbol const copy_wchar( wcstr );
+        SymbolRef const empty;
+        SymbolRef const cstr    (  "char-string" );
+        SymbolRef const cstrlen (  "char-string~~~", 11 );
+        SymbolRef const wcstr   ( L"wchar-string" );
+        SymbolRef const wcstrlen( L"wchar-string~~~", 12 );
+        SymbolRef const str     ( std::string(  "char-string") );
+        SymbolRef const strlen  ( std::string(  "char-string~~~"), 11 );
+        SymbolRef const wstr    ( std::wstring(L"wchar-string") );
+        SymbolRef const wstrlen ( std::wstring(L"wchar-string~~~"), 12 );
+        SymbolRef const copy_empty( empty );
+        SymbolRef const copy_char ( cstr  );
+        SymbolRef const copy_wchar( wcstr );
 
         // Ensure that they constructed something that makes sense
         CPPUNIT_ASSERT( empty.empty() );
         CPPUNIT_ASSERT( 0 == empty.length() );
-        CPPUNIT_ASSERT( empty == Symbol( L"" ) );
+        CPPUNIT_ASSERT( empty == SymbolRef( L"" ) );
         
         CPPUNIT_ASSERT( !cstr.empty() );
         CPPUNIT_ASSERT( 11 == cstr.length() );
@@ -81,46 +81,46 @@ public:
 
     void testEmptyInstance( )
     {
-        CPPUNIT_ASSERT( &Symbol::Empty() == &Symbol::Empty() );
+        CPPUNIT_ASSERT( &SymbolRef::Empty() == &SymbolRef::Empty() );
 
-        CPPUNIT_ASSERT( 0 != Symbol::Empty( ).handle( ) );
-        CPPUNIT_ASSERT( 0 == InternedSymbol_GetLengthW( Symbol::Empty().handle() ) );
-        CPPUNIT_ASSERT( 0 == Symbol::Empty().length() );
-        CPPUNIT_ASSERT( Symbol::Empty().empty() );
+        CPPUNIT_ASSERT( 0 != SymbolRef::Empty( ).handle( ) );
+        CPPUNIT_ASSERT( 0 == InternedSymbol_GetLengthW( SymbolRef::Empty().handle() ) );
+        CPPUNIT_ASSERT( 0 == SymbolRef::Empty().length() );
+        CPPUNIT_ASSERT( SymbolRef::Empty().empty() );
 
-        CPPUNIT_ASSERT( Symbol::Empty() == Symbol() );
-        CPPUNIT_ASSERT( Symbol::Empty() == Symbol("") );
-        CPPUNIT_ASSERT( Symbol::Empty() == Symbol(L"") );
-        CPPUNIT_ASSERT( Symbol::Empty() != Symbol("NotEmpty") );
+        CPPUNIT_ASSERT( SymbolRef::Empty() == SymbolRef() );
+        CPPUNIT_ASSERT( SymbolRef::Empty() == SymbolRef("") );
+        CPPUNIT_ASSERT( SymbolRef::Empty() == SymbolRef(L"") );
+        CPPUNIT_ASSERT( SymbolRef::Empty() != SymbolRef("NotEmpty") );
     }
 
     void testEmptyQuery( )
     {
-        CPPUNIT_ASSERT( Symbol::Empty().empty() );
-        CPPUNIT_ASSERT( Symbol().empty() );
-        CPPUNIT_ASSERT( Symbol("").empty() );
-        CPPUNIT_ASSERT( Symbol(L"").empty() );
-        CPPUNIT_ASSERT( Symbol( std::string() ).empty() );
-        CPPUNIT_ASSERT( Symbol( std::wstring() ).empty() );
+        CPPUNIT_ASSERT( SymbolRef::Empty().empty() );
+        CPPUNIT_ASSERT( SymbolRef().empty() );
+        CPPUNIT_ASSERT( SymbolRef("").empty() );
+        CPPUNIT_ASSERT( SymbolRef(L"").empty() );
+        CPPUNIT_ASSERT( SymbolRef( std::string() ).empty() );
+        CPPUNIT_ASSERT( SymbolRef( std::wstring() ).empty() );
 
-        CPPUNIT_ASSERT( ! Symbol("NotEmpty").empty() );
+        CPPUNIT_ASSERT( ! SymbolRef("NotEmpty").empty() );
 
-        CPPUNIT_ASSERT( ! Symbol("\x00InnerNull", 10).empty() );
+        CPPUNIT_ASSERT( ! SymbolRef("\x00InnerNull", 10).empty() );
     }
 
     void testLength( )
     {
-        CPPUNIT_ASSERT(  0 == Symbol::Empty().length() );
-        CPPUNIT_ASSERT(  0 == Symbol().length() );
-        CPPUNIT_ASSERT(  0 == Symbol("").length() );
-        CPPUNIT_ASSERT(  0 == Symbol(L"").length() );
-        CPPUNIT_ASSERT(  0 == Symbol( std::string() ).length() );
-        CPPUNIT_ASSERT(  0 == Symbol( std::wstring() ).length() );
+        CPPUNIT_ASSERT(  0 == SymbolRef::Empty().length() );
+        CPPUNIT_ASSERT(  0 == SymbolRef().length() );
+        CPPUNIT_ASSERT(  0 == SymbolRef("").length() );
+        CPPUNIT_ASSERT(  0 == SymbolRef(L"").length() );
+        CPPUNIT_ASSERT(  0 == SymbolRef( std::string() ).length() );
+        CPPUNIT_ASSERT(  0 == SymbolRef( std::wstring() ).length() );
 
-        CPPUNIT_ASSERT(  1 == Symbol("1").length() );
-        CPPUNIT_ASSERT(  6 == Symbol("FooBar").length() );
+        CPPUNIT_ASSERT(  1 == SymbolRef("1").length() );
+        CPPUNIT_ASSERT(  6 == SymbolRef("FooBar").length() );
 
-        CPPUNIT_ASSERT( 10 == Symbol("\x00InnerNull", 10).length() );
+        CPPUNIT_ASSERT( 10 == SymbolRef("\x00InnerNull", 10).length() );
     }
 };
 
