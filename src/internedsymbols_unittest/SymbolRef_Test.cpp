@@ -13,6 +13,10 @@
 
 using namespace InternedSymbols;
 
+// static test for size
+typedef int static_assert__no_padding[ sizeof(SymbolRef)==sizeof(void*) ? 1 : -1 ];
+
+
 class CPPUNIT_TEST_NAME : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( CPPUNIT_TEST_NAME );
